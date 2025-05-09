@@ -28,11 +28,32 @@
         .tool-button {
             transition: background-color 0.2s ease-in-out, transform 0.1s ease, color 0.2s ease-in-out;
             display: inline-flex; align-items: center; justify-content: center;
-            height: 2.5rem; padding-left: 1rem; padding-right: 1rem;
+            height: 2.25rem; 
+            padding-left: 0.75rem; 
+            padding-right: 0.75rem; 
             border-radius: 0.375rem; 
             font-weight: 500; 
         }
-        .tool-button.icon-only { width: 2.5rem; padding-left: 0.75rem; padding-right: 0.75rem; }
+        @media (min-width: 640px) { 
+            .tool-button {
+                height: 2.5rem; 
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+        }
+
+        .tool-button.icon-only { 
+            width: 2.25rem; 
+            padding-left: 0.5rem; 
+            padding-right: 0.5rem;
+        }
+        @media (min-width: 640px) { 
+            .tool-button.icon-only {
+                width: 2.5rem;
+                padding-left: 0.75rem;
+                padding-right: 0.75rem;
+            }
+        }
         .tool-button:active { transform: scale(0.95); }
 
         .modal-backdrop { background-color: rgba(0, 0, 0, 0.7); } 
@@ -47,60 +68,66 @@
         #sudoku-grid .sudoku-cell {
             transition: background-color 0.15s ease-in-out;
         }
-        #sudoku-grid .sudoku-cell:nth-child(3n):not(:last-child) { border-right-width: 3px; }
-        #sudoku-grid > div:nth-child(3n):not(:last-child) .sudoku-cell { border-bottom-width: 3px; }
+        #sudoku-grid .sudoku-cell:nth-child(3n):not(:last-child) { border-right-width: 2px; } 
+        #sudoku-grid > div:nth-child(3n):not(:last-child) .sudoku-cell { border-bottom-width: 2px; }
         #sudoku-grid > div:nth-child(3) .sudoku-cell,
-        #sudoku-grid > div:nth-child(6) .sudoku-cell { border-bottom-width: 3px; }
+        #sudoku-grid > div:nth-child(6) .sudoku-cell { border-bottom-width: 2px; }
+        
+        @media (min-width: 640px) { 
+            #sudoku-grid .sudoku-cell:nth-child(3n):not(:last-child) { border-right-width: 3px; }
+            #sudoku-grid > div:nth-child(3n):not(:last-child) .sudoku-cell { border-bottom-width: 3px; }
+            #sudoku-grid > div:nth-child(3) .sudoku-cell,
+            #sudoku-grid > div:nth-child(6) .sudoku-cell { border-bottom-width: 3px; }
+        }
+
         #sudoku-grid .sudoku-cell:nth-child(9) { border-right-width: 1px; }
         #sudoku-grid > div:nth-child(9) .sudoku-cell { border-bottom-width: 1px; }
 
-        /* Submenu styling */
         .submenu-item {
             display: block;
-            padding: 0.5rem 1rem; /* Tailwind's px-4 py-2 */
-            font-size: 0.875rem; /* Tailwind's text-sm */
-            color: #d1d5db; /* Tailwind's text-gray-300 */
+            padding: 0.5rem 1rem; 
+            font-size: 0.875rem; 
+            color: #d1d5db; 
             cursor: pointer;
             transition: background-color 0.15s ease, color 0.15s ease;
         }
         .submenu-item:hover {
-            background-color: #374151; /* Tailwind's bg-slate-600 */
-            color: #ffffff; /* Tailwind's text-white */
+            background-color: #374151; 
+            color: #ffffff; 
         }
-
 
         [v-cloak] { display: none; }
     </style>
 </head>
-<body class="dark bg-slate-900 text-gray-200 flex flex-col h-screen overflow-hidden" v-cloak>
+<body class="dark bg-slate-900 text-gray-200 flex flex-col h-screen overflow-hidden">
     <div id="app" class="flex flex-col h-full">
-        <div id="toolbar" class="p-2 m-2 flex items-center space-x-1 sm:space-x-2 flex-wrap bg-slate-800 border border-slate-700 rounded-lg shadow">
-            <h2 class="text-lg sm:text-xl font-semibold text-gray-100 px-2 sm:px-3 py-1.5 whitespace-nowrap">Sudoku Game</h2>
-            <span class="border-r h-6 border-slate-600 hidden sm:block"></span>
+        <div id="toolbar" class="p-2 m-1 sm:m-2 flex items-center space-x-1 flex-wrap bg-slate-800 border border-slate-700 rounded-lg shadow">
+            <h2 class="text-md sm:text-lg font-semibold text-gray-100 px-1 sm:px-2 py-1 whitespace-nowrap">Sudoku</h2>
+            <span class="border-r h-5 sm:h-6 border-slate-600 hidden xs:block"></span>
             
             <div class="relative">
-                <button @click="toggleNewGameSubmenu" ref="newGameButton" title="New Game" class="tool-button bg-green-600 text-white hover:bg-green-500 active:bg-green-700 text-xs sm:text-sm">
-                    <i class="fas fa-plus mr-1 sm:mr-2"></i> New Game
-                    <i class="fas fa-caret-down ml-2 transition-transform duration-200" :class="{'rotate-180': isNewGameSubmenuOpen}"></i>
+                <button @click="toggleNewGameSubmenu" ref="newGameButton" title="New Game" class="tool-button bg-green-600 text-white hover:bg-green-500 active:bg-green-700 text-xs">
+                    <i class="fas fa-plus mr-1"></i> New
+                    <i class="fas fa-caret-down ml-1 sm:ml-2 transition-transform duration-200" :class="{'rotate-180': isNewGameSubmenuOpen}"></i>
                 </button>
                 <div v-if="isNewGameSubmenuOpen" 
                      id="newGameSubmenu" 
                      ref="newGameSubmenuElement"
-                     class="absolute left-0 mt-1 w-48 bg-slate-700 border border-slate-600 rounded-md shadow-lg py-1 z-50">
-                    <a @click="selectDifficulty('easy')" class="submenu-item">Easy</a>
-                    <a @click="selectDifficulty('medium')" class="submenu-item">Medium</a>
-                    <a @click="selectDifficulty('hard')" class="submenu-item">Hard</a>
+                     class="absolute left-0 mt-1 w-32 sm:w-40 bg-slate-700 border border-slate-600 rounded-md shadow-lg py-1 z-50"> 
+                    <a @click="selectDifficulty('easy')" class="submenu-item text-xs sm:text-sm">Easy</a>
+                    <a @click="selectDifficulty('medium')" class="submenu-item text-xs sm:text-sm">Medium</a>
+                    <a @click="selectDifficulty('hard')" class="submenu-item text-xs sm:text-sm">Hard</a>
                 </div>
             </div>
 
-            <button @click="checkPuzzle" title="Check Puzzle" class="tool-button bg-sky-600 text-white hover:bg-sky-500 active:bg-sky-700 text-xs sm:text-sm">
-                <i class="fas fa-check mr-1 sm:mr-2"></i> Check
+            <button @click="checkPuzzle" title="Check Puzzle" class="tool-button bg-sky-600 text-white hover:bg-sky-500 active:bg-sky-700 text-xs">
+                <i class="fas fa-check mr-1"></i> Check
             </button>
-            <button @click="solvePuzzle" title="Solve Puzzle" class="tool-button bg-amber-500 text-black hover:bg-amber-400 active:bg-amber-600 text-xs sm:text-sm">
-                <i class="fas fa-lightbulb mr-1 sm:mr-2"></i> Solve
+            <button @click="solvePuzzle" title="Solve Puzzle" class="tool-button bg-amber-500 text-black hover:bg-amber-400 active:bg-amber-600 text-xs">
+                <i class="fas fa-lightbulb mr-1"></i> Solve
             </button>
-             <button @click="resetPuzzle" title="Reset Puzzle" class="tool-button bg-red-600 text-white hover:bg-red-500 active:bg-red-700 text-xs sm:text-sm">
-                <i class="fas fa-undo mr-1 sm:mr-2"></i> Reset
+             <button @click="resetPuzzle" title="Reset Puzzle" class="tool-button bg-red-600 text-white hover:bg-red-500 active:bg-red-700 text-xs">
+                <i class="fas fa-undo mr-1"></i> Reset
             </button>
             <div class="flex-grow"></div>
             <button @click="isAboutModalOpen = true" title="À propos" class="tool-button icon-only bg-slate-600 text-gray-300 hover:bg-slate-500 active:bg-slate-700">
@@ -108,17 +135,17 @@
             </button>
         </div>
 
-        <div class="flex-grow m-2 flex flex-col items-center justify-center p-2 sm:p-4 rounded-lg custom-scrollbar"
+        <div class="flex-grow m-1 sm:m-2 flex flex-col items-center justify-center p-1 sm:p-2 rounded-lg custom-scrollbar"
              :style="{ backgroundColor: boardBgColor }">
             
-            <div id="sudoku-grid" class="grid grid-cols-9 gap-px bg-slate-500 border-2 border-slate-500 rounded-md shadow-lg select-none w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl">
+            <div id="sudoku-grid" class="grid grid-cols-9 gap-px bg-slate-600 border border-slate-600 sm:border-2 sm:border-slate-500 rounded shadow-md sm:rounded-md sm:shadow-lg select-none w-full max-w-[calc(100vmin-80px)] sm:max-w-xs md:max-w-sm lg:max-w-md xl:max-w-lg">
                 <template v-for="(row, r_idx) in sudokuGrid" :key="r_idx">
                     <div v-for="(cell, c_idx) in row" :key="`${r_idx}-${c_idx}`"
-                         class="sudoku-cell aspect-square flex items-center justify-center text-xl sm:text-2xl md:text-3xl font-medium cursor-pointer border border-slate-600"
+                         class="sudoku-cell aspect-square flex items-center justify-center text-lg sm:text-xl md:text-2xl lg:text-3xl font-medium cursor-pointer border border-slate-500 sm:border-slate-600"
                          :class="{
                              'bg-slate-800 hover:bg-slate-700/70': !cell.fixed && !isSelected(r_idx, c_idx) && !isRelated(r_idx, c_idx) && !cell.isError,
                              'bg-slate-800/60 text-sky-300 font-bold': cell.fixed && !isSelected(r_idx, c_idx) && !isRelated(r_idx, c_idx),
-                             'bg-sky-700 ring-2 ring-sky-400 z-10': isSelected(r_idx, c_idx),
+                             'bg-sky-700 ring-1 sm:ring-2 ring-sky-500 sm:ring-sky-400 z-10': isSelected(r_idx, c_idx),
                              'bg-slate-700/50': isRelated(r_idx, c_idx) && !isSelected(r_idx, c_idx) && !cell.isError,
                              'text-red-400 bg-red-800/30 hover:bg-red-700/50 font-bold': cell.isError,
                              'text-green-400': cell.currentValue !== 0 && !cell.fixed && !cell.isError && justChecked && gameWon,
@@ -131,15 +158,15 @@
                 </template>
             </div>
 
-            <div id="number-pad" class="mt-4 md:mt-5 lg:mt-6 grid grid-cols-5 gap-1 sm:gap-1.5 md:gap-2 lg:gap-2.5">
+            <div id="number-pad" class="mt-3 sm:mt-4 grid grid-cols-5 gap-1 sm:gap-1.5 md:gap-2">
                 <button v-for="num in [1,2,3,4,5,6,7,8,9]" :key="num"
                         @click="inputNumber(num)"
-                        class="tool-button w-10 h-10 text-lg sm:w-11 sm:h-11 sm:text-xl md:w-12 md:h-12 lg:w-14 lg:h-14 lg:text-2xl bg-sky-600 hover:bg-sky-500 text-white rounded-md">
+                        class="tool-button w-8 h-8 text-base sm:w-10 sm:h-10 sm:text-lg md:w-12 md:h-12 md:text-xl lg:w-14 lg:h-14 lg:text-2xl bg-sky-600 hover:bg-sky-500 text-white rounded-md">
                     {{num}}
                 </button>
                 <button @click="inputNumber(0)" title="Clear cell (Backspace/Delete)"
-                        class="tool-button w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 bg-slate-600 hover:bg-slate-500 text-white rounded-md">
-                    <i class="fas fa-backspace"></i>
+                        class="tool-button w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 bg-slate-600 hover:bg-slate-500 text-white rounded-md">
+                    <i class="fas fa-backspace text-sm sm:text-base md:text-lg"></i>
                 </button>
             </div>
         </div>
@@ -151,18 +178,18 @@
             </div>
         </modal>
 
-        <modal :is-open="isAboutModalOpen" @close="isAboutModalOpen = false" title="About Sudoku Game" width-class="max-w-md">
-            <p class="text-gray-300 mb-2"><strong>Version:</strong> 1.0.2</p> 
-            <p class="text-gray-300 mb-4">A classic Sudoku puzzle game.</p>
-            <p class="text-gray-300 mb-4">Select a cell and use the number pad or your keyboard (1-9 to input, Backspace/Delete to clear, Arrow keys to navigate) to fill the grid. Errors are shown after clicking 'Check'.</p>
-            <div class="border-t border-slate-700 pt-4 mt-4">
-                <h4 class="text-md font-semibold mb-2 text-gray-200">Built with:</h4>
-                <ul class="list-disc list-inside text-sm text-gray-400">
+        <modal :is-open="isAboutModalOpen" @close="isAboutModalOpen = false" title="About Sudoku Game" width-class="max-w-xs sm:max-w-sm md:max-w-md"> 
+            <p class="text-gray-300 mb-2 text-sm sm:text-base"><strong>Version:</strong> 1.0.5</p> 
+            <p class="text-gray-300 mb-4 text-sm sm:text-base">A classic Sudoku puzzle game with randomized puzzles per difficulty.</p>
+            <p class="text-gray-300 mb-4 text-xs sm:text-sm">Select a cell and use the number pad or your keyboard (1-9 to input, Backspace/Delete to clear, Arrow keys to navigate) to fill the grid. Errors are shown after clicking 'Check'.</p>
+            <div class="border-t border-slate-700 pt-3 sm:pt-4 mt-3 sm:mt-4">
+                <h4 class="text-sm sm:text-md font-semibold mb-2 text-gray-200">Built with:</h4>
+                <ul class="list-disc list-inside text-xs sm:text-sm text-gray-400">
                     <li>Vue.js 3</li><li>Tailwind CSS</li><li>Font Awesome</li>
                 </ul>
             </div>
-            <div class="flex justify-end mt-6">
-                <button @click="isAboutModalOpen = false" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">Close</button>
+            <div class="flex justify-end mt-4 sm:mt-6">
+                <button @click="isAboutModalOpen = false" class="px-3 py-1.5 sm:px-4 sm:py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-sm sm:text-base">Close</button>
             </div>
         </modal>
 
@@ -171,19 +198,52 @@
     <script>
         const DEFAULT_BOARD_BG_COLOR = '#0d1117'; 
         
+        const LCG_A = 1664525;
+        const LCG_C = 1013904223;
+        const LCG_M = Math.pow(2, 32);
+
+        function seededRandomGenerator(seed) {
+            const nextSeed = (LCG_A * seed + LCG_C) % LCG_M;
+            return { randomNumber: nextSeed / LCG_M, nextSeed: nextSeed };
+        }
+
         const verifiedPuzzles = {
-            easy: {
-                puzzle: [[5,3,0,0,7,0,0,0,0],[6,0,0,1,9,5,0,0,0],[0,9,8,0,0,0,0,6,0],[8,0,0,0,6,0,0,0,3],[4,0,0,8,0,3,0,0,1],[7,0,0,0,2,0,0,0,6],[0,6,0,0,0,0,2,8,0],[0,0,0,4,1,9,0,0,5],[0,0,0,0,8,0,0,7,9]],
-                solution: [[5,3,4,6,7,8,9,1,2],[6,7,2,1,9,5,3,4,8],[1,9,8,3,4,2,5,6,7],[8,5,9,7,6,1,4,2,3],[4,2,6,8,5,3,7,9,1],[7,1,3,9,2,4,8,5,6],[9,6,1,5,3,7,2,8,4],[2,8,7,4,1,9,6,3,5],[3,4,5,2,8,6,1,7,9]]
-            },
-            medium: { 
-                puzzle: [[0,2,0,0,0,0,0,0,0],[0,0,0,6,0,0,0,0,3],[0,7,4,0,8,0,0,0,0],[0,0,0,0,0,3,0,0,2],[0,8,0,0,4,0,0,1,0],[6,0,0,5,0,0,0,0,0],[0,0,0,0,1,0,7,8,0],[5,0,0,0,0,9,0,0,0],[0,0,0,0,0,0,0,4,0]],
-                solution: [[1,2,6,4,3,7,9,5,8],[8,9,5,6,2,1,4,7,3],[3,7,4,9,8,5,1,2,6],[4,5,7,1,9,3,8,6,2],[9,8,3,2,4,6,5,1,7],[6,1,2,5,7,8,3,9,4],[2,6,9,3,1,4,7,8,5],[5,4,8,7,6,9,2,3,1],[7,3,1,8,5,2,6,4,9]]
-            },
-            hard: {
-                puzzle: [[8,0,0,0,0,0,0,0,0],[0,0,3,6,0,0,0,0,0],[0,7,0,0,9,0,2,0,0],[0,5,0,0,0,7,0,0,0],[0,0,0,0,4,5,7,0,0],[0,0,0,1,0,0,0,3,0],[0,0,1,0,0,0,0,6,8],[0,0,8,5,0,0,0,1,0],[0,9,0,0,0,0,4,0,0]],
-                solution: [[8,1,2,7,5,3,6,4,9],[9,4,3,6,8,2,1,7,5],[6,7,5,4,9,1,2,8,3],[1,5,4,2,3,7,8,9,6],[3,6,9,8,4,5,7,2,1],[2,8,7,1,6,9,5,3,4],[5,2,1,9,7,4,3,6,8],[4,3,8,5,2,6,9,1,7],[7,9,6,3,1,8,4,5,2]]
-            }
+            easy: [
+                {
+                    id: "e1",
+                    puzzle: [[5,3,0,0,7,0,0,0,0],[6,0,0,1,9,5,0,0,0],[0,9,8,0,0,0,0,6,0],[8,0,0,0,6,0,0,0,3],[4,0,0,8,0,3,0,0,1],[7,0,0,0,2,0,0,0,6],[0,6,0,0,0,0,2,8,0],[0,0,0,4,1,9,0,0,5],[0,0,0,0,8,0,0,7,9]],
+                    solution: [[5,3,4,6,7,8,9,1,2],[6,7,2,1,9,5,3,4,8],[1,9,8,3,4,2,5,6,7],[8,5,9,7,6,1,4,2,3],[4,2,6,8,5,3,7,9,1],[7,1,3,9,2,4,8,5,6],[9,6,1,5,3,7,2,8,4],[2,8,7,4,1,9,6,3,5],[3,4,5,2,8,6,1,7,9]]
+                },
+                {
+                    id: "e2",
+                    puzzle: [[0,0,3,0,2,0,6,0,0],[9,0,0,3,0,5,0,0,1],[0,0,1,8,0,6,4,0,0],[0,0,8,1,0,2,9,0,0],[7,0,0,0,0,0,0,0,8],[0,0,6,7,0,8,2,0,0],[0,0,2,6,0,9,5,0,0],[8,0,0,2,0,3,0,0,9],[0,0,5,0,1,0,3,0,0]],
+                    solution: [[4,8,3,9,2,1,6,5,7],[9,6,7,3,4,5,8,2,1],[2,5,1,8,7,6,4,9,3],[5,4,8,1,3,2,9,7,6],[7,2,9,5,6,4,1,3,8],[1,3,6,7,9,8,2,4,5],[3,7,2,6,8,9,5,1,4],[8,1,4,2,5,3,7,6,9],[6,9,5,4,1,7,3,8,2]]
+                }
+            ],
+            medium: [
+                { 
+                    id: "m1",
+                    puzzle: [[0,2,0,0,0,0,0,0,0],[0,0,0,6,0,0,0,0,3],[0,7,4,0,8,0,0,0,0],[0,0,0,0,0,3,0,0,2],[0,8,0,0,4,0,0,1,0],[6,0,0,5,0,0,0,0,0],[0,0,0,0,1,0,7,8,0],[5,0,0,0,0,9,0,0,0],[0,0,0,0,0,0,0,4,0]],
+                    solution: [[1,2,6,4,3,7,9,5,8],[8,9,5,6,2,1,4,7,3],[3,7,4,9,8,5,1,2,6],[4,5,7,1,9,3,8,6,2],[9,8,3,2,4,6,5,1,7],[6,1,2,5,7,8,3,9,4],[2,6,9,3,1,4,7,8,5],[5,4,8,7,6,9,2,3,1],[7,3,1,8,5,2,6,4,9]]
+                },
+                {
+                    id: "m2",
+                    puzzle: [[0,0,0,6,0,0,4,0,0],[7,0,0,0,0,3,6,0,0],[0,0,0,0,9,1,0,8,0],[0,0,0,0,0,0,0,0,0],[0,0,5,1,8,0,0,0,3],[0,0,0,3,0,6,0,4,5],[0,4,0,2,0,0,0,6,0],[9,0,3,0,0,0,0,0,0],[0,2,0,0,0,0,1,0,0]],
+                    solution: [[1,5,8,6,2,7,4,3,9],[7,9,2,8,4,3,6,5,1],[3,6,4,5,9,1,7,8,2],[4,3,6,9,5,2,8,1,7],[2,7,5,1,8,4,9,6,3],[8,1,9,3,7,6,2,4,5],[5,4,1,2,3,9,7,6,8],[9,8,3,7,6,5,1,2,4],[6,2,7,4,1,8,5,9,3]]
+                }
+            ],
+            hard: [
+                {
+                    id: "h1",
+                    puzzle: [[8,0,0,0,0,0,0,0,0],[0,0,3,6,0,0,0,0,0],[0,7,0,0,9,0,2,0,0],[0,5,0,0,0,7,0,0,0],[0,0,0,0,4,5,7,0,0],[0,0,0,1,0,0,0,3,0],[0,0,1,0,0,0,0,6,8],[0,0,8,5,0,0,0,1,0],[0,9,0,0,0,0,4,0,0]],
+                    solution: [[8,1,2,7,5,3,6,4,9],[9,4,3,6,8,2,1,7,5],[6,7,5,4,9,1,2,8,3],[1,5,4,2,3,7,8,9,6],[3,6,9,8,4,5,7,2,1],[2,8,7,1,6,9,5,3,4],[5,2,1,9,7,4,3,6,8],[4,3,8,5,2,6,9,1,7],[7,9,6,3,1,8,4,5,2]]
+                },
+                {
+                    id: "h2",
+                    puzzle: [[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,3,0,8,5],[0,0,1,0,2,0,0,0,0],[0,0,0,5,0,7,0,0,0],[0,0,4,0,0,0,1,0,0],[0,9,0,0,0,0,0,0,0],[5,0,0,0,0,0,0,7,3],[0,0,2,0,1,0,0,0,0],[0,0,0,0,4,0,0,0,9]],
+                    solution: [[9,8,7,6,5,4,3,2,1],[2,4,6,1,7,3,9,8,5],[3,5,1,9,2,8,7,4,6],[1,2,8,5,3,7,6,9,4],[6,3,4,8,9,2,1,5,7],[7,9,5,4,6,1,8,3,2],[5,1,9,2,8,6,4,7,3],[4,7,2,3,1,9,5,6,8],[8,6,3,7,4,5,2,1,9]]
+                }
+            ]
         };
 
         const ModalComponent = {
@@ -191,9 +251,9 @@
             emits: ['close'],
             template: `
                 <div v-if="isOpen" class="fixed inset-0 modal-backdrop flex items-center justify-center z-50 p-4" @click.self="$emit('close')">
-                    <div class="modal-content p-5 sm:p-6 rounded-lg shadow-xl w-full" :class="widthClass" @click.stop>
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-semibold text-white">{{ title }}</h3>
+                    <div class="modal-content p-4 sm:p-5 rounded-lg shadow-xl w-full" :class="widthClass" @click.stop"> 
+                        <div class="flex justify-between items-center mb-3 sm:mb-4">
+                            <h3 class="text-md sm:text-lg font-semibold text-white">{{ title }}</h3>
                             <button @click="$emit('close')" class="text-gray-500 hover:text-gray-300 transition-colors">
                                 <i class="fas fa-times"></i>
                             </button>
@@ -212,8 +272,10 @@
                     selectedCell: { r: -1, c: -1 },
                     currentPuzzleDefinition: null, 
                     currentSolutionDefinition: null, 
+                    currentDifficulty: 'easy',
+                    currentSeed: Date.now(), 
+                    activePuzzleKey: '',
                     boardBgColor: DEFAULT_BOARD_BG_COLOR,
-                    
                     isAboutModalOpen: false,
                     isNewGameSubmenuOpen: false, 
                     isMessageModalOpen: false,
@@ -221,7 +283,7 @@
                     messageModalText: '',
                     messageModalType: 'info', 
                     gameWon: false,
-                    justChecked: false, // Used to style correct numbers after a successful check or win
+                    justChecked: false,
                 }
             },
             computed: {
@@ -236,71 +298,84 @@
                     this.isNewGameSubmenuOpen = !this.isNewGameSubmenuOpen;
                 },
                 selectDifficulty(difficulty) {
-                    this.startNewGame(difficulty);
+                    this.startNewGame(difficulty); 
                     this.isNewGameSubmenuOpen = false; 
                 },
-                startNewGame(difficulty) {
+                startNewGame(difficulty, specificPuzzleIndex = -1) {
                     this.gameWon = false;
                     this.justChecked = false;
-                    const puzzleData = verifiedPuzzles[difficulty]; 
-                    if (!puzzleData) {
-                        console.error("Invalid difficulty or puzzle data not found:", difficulty);
-                        this.showMessage("Error", "Could not load puzzle for this difficulty.", "error");
+                    this.currentDifficulty = difficulty;
+
+                    const puzzlesForDifficulty = verifiedPuzzles[difficulty];
+                    if (!puzzlesForDifficulty || puzzlesForDifficulty.length === 0) {
+                        console.error("No puzzles available for difficulty:", difficulty);
+                        this.showMessage("Error", "No puzzles available for this difficulty.", "error");
                         return;
                     }
+
+                    let puzzleIndexToLoad;
+                    let puzzleData;
+
+                    if (specificPuzzleIndex !== -1 && specificPuzzleIndex < puzzlesForDifficulty.length) {
+                        puzzleIndexToLoad = specificPuzzleIndex;
+                    } else {
+                        let prngResult = seededRandomGenerator(this.currentSeed);
+                        this.currentSeed = prngResult.nextSeed; 
+                        puzzleIndexToLoad = Math.floor(prngResult.randomNumber * puzzlesForDifficulty.length);
+                    }
+                    
+                    puzzleData = puzzlesForDifficulty[puzzleIndexToLoad];
+                    this.activePuzzleKey = `${difficulty}-${puzzleIndexToLoad}`; 
+
+                    if (!puzzleData) { 
+                        console.error("Could not select puzzle data for:", difficulty, puzzleIndexToLoad);
+                        this.showMessage("Error", "Could not load puzzle.", "error");
+                        this.activePuzzleKey = ''; // Clear active key if failed
+                        return;
+                    }
+
                     this.currentPuzzleDefinition = JSON.parse(JSON.stringify(puzzleData.puzzle));
                     this.currentSolutionDefinition = JSON.parse(JSON.stringify(puzzleData.solution));
-                    this.loadPuzzle(); // This will also clear errors by re-initializing cells
+                    
+                    this.loadPuzzle();
                     this.selectedCell = { r: -1, c: -1 };
                 },
-
                 loadPuzzle() {
                     if (!this.currentPuzzleDefinition) return;
                     this.sudokuGrid = this.currentPuzzleDefinition.map(row => 
                         row.map(val => ({
                             currentValue: val,
                             fixed: val !== 0,
-                            isError: false // Initialize/reset error state
+                            isError: false
                         }))
                     );
                 },
-
                 selectCell(r, c) {
                     this.selectedCell = { r, c };
-                    // this.justChecked = false; // Keep justChecked state until next check or new game
                 },
-
                 isSelected(r, c) {
                     return this.selectedCell.r === r && this.selectedCell.c === c;
                 },
-
                 isRelated(r, c) {
                     if (this.selectedCell.r === -1) return false;
                     if (this.isSelected(r,c)) return false; 
-
                     const selectedR = this.selectedCell.r;
                     const selectedC = this.selectedCell.c;
-
                     if (r === selectedR || c === selectedC) return true;
-
                     const boxStartR = Math.floor(selectedR / 3) * 3;
                     const boxStartC = Math.floor(selectedC / 3) * 3;
                     if (r >= boxStartR && r < boxStartR + 3 && c >= boxStartC && c < boxStartC + 3) return true;
-                    
                     return false;
                 },
-
                 inputNumber(num) { 
                     if (this.selectedCell.r === -1 || this.gameWon) return;
                     const { r, c } = this.selectedCell;
                     const cell = this.sudokuGrid[r][c];
-
                     if (!cell.fixed) {
                         cell.currentValue = num;
-                        cell.isError = false; // Clear error for this specific cell on new input
+                        cell.isError = false; 
                     }
                 },
-                
                 clearAllErrors() {
                     for (let i = 0; i < 9; i++) {
                         for (let j = 0; j < 9; j++) {
@@ -308,7 +383,6 @@
                         }
                     }
                 },
-
                 checkPuzzle() {
                     if (this.gameWon) {
                         this.showMessage("Game Over", "You've already solved this puzzle!", "info");
@@ -317,7 +391,6 @@
                     this.clearAllErrors(); 
                     let hasErrors = false;
                     let isFull = true;
-
                     for (let r_idx = 0; r_idx < 9; r_idx++) {
                         for (let c_idx = 0; c_idx < 9; c_idx++) {
                             const cell = this.sudokuGrid[r_idx][c_idx];
@@ -331,9 +404,7 @@
                             }
                         }
                     }
-                    
                     this.justChecked = true; 
-
                     if (hasErrors) {
                         this.showMessage("Check Results", "There are some errors in your solution. Keep trying!", "error");
                         this.gameWon = false; 
@@ -345,10 +416,8 @@
                         this.gameWon = true;
                     }
                 },
-
                 isMoveValid(r, c, num) { 
                     if (num === 0) return true; 
-                    
                     for (let i = 0; i < 9; i++) {
                         if (i !== c && this.sudokuGrid[r][i].currentValue === num) return false;
                     }
@@ -364,7 +433,6 @@
                     }
                     return true; 
                 },
-
                 solvePuzzle() {
                     if (!this.currentSolutionDefinition) {
                         this.showMessage("Error", "No solution available for this puzzle.", "error");
@@ -383,28 +451,25 @@
                     this.selectedCell = {r: -1, c: -1}; 
                     this.showMessage("Solved", "The puzzle has been solved for you.", "info");
                 },
-
                 resetPuzzle() {
-                    // Determine current difficulty to restart with the same one
-                    let currentDifficulty = 'easy'; // Default
-                    if (this.currentPuzzleDefinition) {
-                        for (const diff of ['easy', 'medium', 'hard']) {
-                            if (JSON.stringify(verifiedPuzzles[diff].puzzle) === JSON.stringify(this.currentPuzzleDefinition)) {
-                                currentDifficulty = diff;
-                                break;
-                            }
+                    if (this.activePuzzleKey) {
+                        const [difficulty, indexStr] = this.activePuzzleKey.split('-');
+                        const index = parseInt(indexStr, 10);
+                        if (verifiedPuzzles[difficulty] && typeof index === 'number' && index >= 0 && index < verifiedPuzzles[difficulty].length) {
+                            this.startNewGame(difficulty, index); 
+                        } else {
+                            this.startNewGame(this.currentDifficulty || 'easy'); 
                         }
+                    } else {
+                        this.startNewGame(this.currentDifficulty || 'easy'); 
                     }
-                    this.startNewGame(currentDifficulty);
                 },
-                
                 showMessage(title, text, type = 'info') {
                     this.messageModalTitle = title;
                     this.messageModalText = text;
                     this.messageModalType = type;
                     this.isMessageModalOpen = true;
                 },
-
                 handleGlobalClick(event) {
                     const newGameSubmenuEl = this.$refs.newGameSubmenuElement;
                     const newGameButtonEl = this.$refs.newGameButton;
@@ -413,7 +478,6 @@
                         this.isNewGameSubmenuOpen = false;
                     }
                 },
-
                 handleGlobalKeyDown(e) {
                     if (e.key === 'Escape') {
                         if (this.isMessageModalOpen) this.isMessageModalOpen = false;
@@ -424,7 +488,6 @@
                         }
                         return; 
                     }
-
                     if (!this.isMessageModalOpen && !this.isAboutModalOpen && !this.isNewGameSubmenuOpen) {
                         if (this.selectedCell.r !== -1 && !this.gameWon) { 
                             if (e.key >= '1' && e.key <= '9') {

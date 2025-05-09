@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku Game (Vue.js)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overscroll-behavior: none; 
+        }
+        :root { 
+            font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif; 
+            --board-bg-color-default: #0d1117; 
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        #toolbar { 
+            border-radius: 0.5rem; 
+        }
+        .tool-button {
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease, color 0.2s ease-in-out;
+            display: inline-flex; align-items: center; justify-content: center;
+            height: 2.5rem; padding-left: 1rem; padding-right: 1rem;
+            border-radius: 0.375rem; 
+            font-weight: 500; 
+        }
+        .tool-button.icon-only { width: 2.5rem; padding-left: 0.75rem; padding-right: 0.75rem; }
+        .tool-button:active { transform: scale(0.95); }
+
+        .modal-backdrop { background-color: rgba(0, 0, 0, 0.7); } 
+        .modal-content { 
+            transform: scale(0.95); opacity: 0; animation: modal-appear 0.3s forwards; 
+            background-color: #161b22; 
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3), 0 20px 40px rgba(0,0,0,0.2);
+        }
+        @keyframes modal-appear { to { opacity: 1; transform: scale(1); } }
+
+        #sudoku-grid .sudoku-cell {
+            transition: background-color 0.15s ease-in-out;
+        }
+        #sudoku-grid .sudoku-cell:nth-child(3n):not(:last-child) { border-right-width: 3px; }
+        #sudoku-grid > div:nth-child(3n):not(:last-child) .sudoku-cell { border-bottom-width: 3px; }
+        #sudoku-grid > div:nth-child(3) .sudoku-cell,
+        #sudoku-grid > div:nth-child(6) .sudoku-cell { border-bottom-width: 3px; }
+        #sudoku-grid .sudoku-cell:nth-child(9) { border-right-width: 1px; }
+        #sudoku-grid > div:nth-child(9) .sudoku-cell { border-bottom-width: 1px; }
+
+        /* Submenu styling */
+        .submenu-item {
+            display: block;
+            padding: 0.5rem 1rem; /* Tailwind's px-4 py-2 */
+            font-size: 0.875rem; /* Tailwind's text-sm */
+            color: #d1d5db; /* Tailwind's text-gray-300 */
+            cursor: pointer;
+            transition: background-color 0.15s ease, color 0.15s ease;
+        }
+        .submenu-item:hover {
+            background-color: #374151; /* Tailwind's bg-slate-600 */
+            color: #ffffff; /* Tailwind's text-white */
+        }
+
+
+        [v-cloak] { display: none; }
+    </style>
+</head>
+<body class="dark bg-slate-900 text-gray-200 flex flex-col h-screen overflow-hidden" v-cloak>
+    <div id="app" class="flex flex-col h-full">
+        <div id="toolbar" class="p-2 m-2 flex items-center space-x-1 sm:space-x-2 flex-wrap bg-slate-800 border border-slate-700 rounded-lg shadow">
+            <h2 class="text-lg sm:text-xl font-semibold text-gray-100 px-2 sm:px-3 py-1.5 whitespace-nowrap">Sudoku Game</h2>
+            <span class="border-r h-6 border-slate-600 hidden sm:block"></span>
+            
+            <div class="relative">
+                <button @click="toggleNewGameSubmenu" ref="newGameButton" title="New Game" class="tool-button bg-green-600 text-white hover:bg-green-500 active:bg-green-700 text-xs sm:text-sm">
+                    <i class="fas fa-plus mr-1 sm:mr-2"></i> New Game
+                    <i class="fas fa-caret-down ml-2 transition-transform duration-200" :class="{'rotate-180': isNewGameSubmenuOpen}"></i>
+                </button>
+                <div v-if="isNewGameSubmenuOpen" 
+                     id="newGameSubmenu" 
+                     ref="newGameSubmenuElement"
+                     class="absolute left-0 mt-1 w-48 bg-slate-700 border border-slate-600 rounded-md shadow-lg py-1 z-50">
+                    <a @click="selectDifficulty('easy')" class="submenu-item">Easy</a>
+                    <a @click="selectDifficulty('medium')" class="submenu-item">Medium</a>
+                    <a @click="selectDifficulty('hard')" class="submenu-item">Hard</a>
+                </div>
+            </div>
+
+            <button @click="checkPuzzle" title="Check Puzzle" class="tool-button bg-sky-600 text-white hover:bg-sky-500 active:bg-sky-700 text-xs sm:text-sm">
+                <i class="fas fa-check mr-1 sm:mr-2"></i> Check
+            </button>
+            <button @click="solvePuzzle" title="Solve Puzzle" class="tool-button bg-amber-500 text-black hover:bg-amber-400 active:bg-amber-600 text-xs sm:text-sm">
+                <i class="fas fa-lightbulb mr-1 sm:mr-2"></i> Solve
+            </button>
+             <button @click="resetPuzzle" title="Reset Puzzle" class="tool-button bg-red-600 text-white hover:bg-red-500 active:bg-red-700 text-xs sm:text-sm">
+                <i class="fas fa-undo mr-1 sm:mr-2"></i> Reset
+            </button>
+            <div class="flex-grow"></div>
+            <button @click="isAboutModalOpen = true" title="À propos" class="tool-button icon-only bg-slate-600 text-gray-300 hover:bg-slate-500 active:bg-slate-700">
+                <i class="fas fa-question-circle"></i>
+            </button>
+        </div>
+
+        <div class="flex-grow m-2 flex flex-col items-center justify-center p-2 sm:p-4 rounded-lg custom-scrollbar"
+             :style="{ backgroundColor: boardBgColor }">
+            
+            <div id="sudoku-grid" class="grid grid-cols-9 gap-px bg-slate-500 border-2 border-slate-500 rounded-md shadow-lg select-none w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl">
+                <template v-for="(row, r_idx) in sudokuGrid" :key="r_idx">
+                    <div v-for="(cell, c_idx) in row" :key="`${r_idx}-${c_idx}`"
+                         class="sudoku-cell aspect-square flex items-center justify-center text-xl sm:text-2xl md:text-3xl font-medium cursor-pointer border border-slate-600"
+                         :class="{
+                             'bg-slate-800 hover:bg-slate-700/70': !cell.fixed && !isSelected(r_idx, c_idx) && !isRelated(r_idx, c_idx) && !cell.isError,
+                             'bg-slate-800/60 text-sky-300 font-bold': cell.fixed && !isSelected(r_idx, c_idx) && !isRelated(r_idx, c_idx),
+                             'bg-sky-700 ring-2 ring-sky-400 z-10': isSelected(r_idx, c_idx),
+                             'bg-slate-700/50': isRelated(r_idx, c_idx) && !isSelected(r_idx, c_idx) && !cell.isError,
+                             'text-red-400 bg-red-800/30 hover:bg-red-700/50 font-bold': cell.isError,
+                             'text-green-400': cell.currentValue !== 0 && !cell.fixed && !cell.isError && justChecked && gameWon,
+                             'border-r-slate-400 dark:border-r-slate-300': (c_idx + 1) % 3 === 0 && c_idx !== 8,
+                             'border-b-slate-400 dark:border-b-slate-300': (r_idx + 1) % 3 === 0 && r_idx !== 8
+                         }"
+                         @click="selectCell(r_idx, c_idx)">
+                        {{ cell.currentValue > 0 ? cell.currentValue : '' }}
+                    </div>
+                </template>
+            </div>
+
+            <div id="number-pad" class="mt-4 md:mt-5 lg:mt-6 grid grid-cols-5 gap-1 sm:gap-1.5 md:gap-2 lg:gap-2.5">
+                <button v-for="num in [1,2,3,4,5,6,7,8,9]" :key="num"
+                        @click="inputNumber(num)"
+                        class="tool-button w-10 h-10 text-lg sm:w-11 sm:h-11 sm:text-xl md:w-12 md:h-12 lg:w-14 lg:h-14 lg:text-2xl bg-sky-600 hover:bg-sky-500 text-white rounded-md">
+                    {{num}}
+                </button>
+                <button @click="inputNumber(0)" title="Clear cell (Backspace/Delete)"
+                        class="tool-button w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 bg-slate-600 hover:bg-slate-500 text-white rounded-md">
+                    <i class="fas fa-backspace"></i>
+                </button>
+            </div>
+        </div>
+
+        <modal :is-open="isMessageModalOpen" @close="isMessageModalOpen = false" :title="messageModalTitle">
+            <p class="text-gray-300 mb-4" :class="messageModalTypeClass">{{ messageModalText }}</p>
+            <div class="flex justify-end">
+                <button @click="isMessageModalOpen = false" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">OK</button>
+            </div>
+        </modal>
+
+        <modal :is-open="isAboutModalOpen" @close="isAboutModalOpen = false" title="About Sudoku Game" width-class="max-w-md">
+            <p class="text-gray-300 mb-2"><strong>Version:</strong> 1.0.2</p> 
+            <p class="text-gray-300 mb-4">A classic Sudoku puzzle game.</p>
+            <p class="text-gray-300 mb-4">Select a cell and use the number pad or your keyboard (1-9 to input, Backspace/Delete to clear, Arrow keys to navigate) to fill the grid. Errors are shown after clicking 'Check'.</p>
+            <div class="border-t border-slate-700 pt-4 mt-4">
+                <h4 class="text-md font-semibold mb-2 text-gray-200">Built with:</h4>
+                <ul class="list-disc list-inside text-sm text-gray-400">
+                    <li>Vue.js 3</li><li>Tailwind CSS</li><li>Font Awesome</li>
+                </ul>
+            </div>
+            <div class="flex justify-end mt-6">
+                <button @click="isAboutModalOpen = false" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">Close</button>
+            </div>
+        </modal>
+
+    </div>
+
+    <script>
+        const DEFAULT_BOARD_BG_COLOR = '#0d1117'; 
+        
+        const verifiedPuzzles = {
+            easy: {
+                puzzle: [[5,3,0,0,7,0,0,0,0],[6,0,0,1,9,5,0,0,0],[0,9,8,0,0,0,0,6,0],[8,0,0,0,6,0,0,0,3],[4,0,0,8,0,3,0,0,1],[7,0,0,0,2,0,0,0,6],[0,6,0,0,0,0,2,8,0],[0,0,0,4,1,9,0,0,5],[0,0,0,0,8,0,0,7,9]],
+                solution: [[5,3,4,6,7,8,9,1,2],[6,7,2,1,9,5,3,4,8],[1,9,8,3,4,2,5,6,7],[8,5,9,7,6,1,4,2,3],[4,2,6,8,5,3,7,9,1],[7,1,3,9,2,4,8,5,6],[9,6,1,5,3,7,2,8,4],[2,8,7,4,1,9,6,3,5],[3,4,5,2,8,6,1,7,9]]
+            },
+            medium: { 
+                puzzle: [[0,2,0,0,0,0,0,0,0],[0,0,0,6,0,0,0,0,3],[0,7,4,0,8,0,0,0,0],[0,0,0,0,0,3,0,0,2],[0,8,0,0,4,0,0,1,0],[6,0,0,5,0,0,0,0,0],[0,0,0,0,1,0,7,8,0],[5,0,0,0,0,9,0,0,0],[0,0,0,0,0,0,0,4,0]],
+                solution: [[1,2,6,4,3,7,9,5,8],[8,9,5,6,2,1,4,7,3],[3,7,4,9,8,5,1,2,6],[4,5,7,1,9,3,8,6,2],[9,8,3,2,4,6,5,1,7],[6,1,2,5,7,8,3,9,4],[2,6,9,3,1,4,7,8,5],[5,4,8,7,6,9,2,3,1],[7,3,1,8,5,2,6,4,9]]
+            },
+            hard: {
+                puzzle: [[8,0,0,0,0,0,0,0,0],[0,0,3,6,0,0,0,0,0],[0,7,0,0,9,0,2,0,0],[0,5,0,0,0,7,0,0,0],[0,0,0,0,4,5,7,0,0],[0,0,0,1,0,0,0,3,0],[0,0,1,0,0,0,0,6,8],[0,0,8,5,0,0,0,1,0],[0,9,0,0,0,0,4,0,0]],
+                solution: [[8,1,2,7,5,3,6,4,9],[9,4,3,6,8,2,1,7,5],[6,7,5,4,9,1,2,8,3],[1,5,4,2,3,7,8,9,6],[3,6,9,8,4,5,7,2,1],[2,8,7,1,6,9,5,3,4],[5,2,1,9,7,4,3,6,8],[4,3,8,5,2,6,9,1,7],[7,9,6,3,1,8,4,5,2]]
+            }
+        };
+
+        const ModalComponent = {
+            props: { isOpen: Boolean, title: String, widthClass: { type: String, default: 'max-w-sm' } }, 
+            emits: ['close'],
+            template: `
+                <div v-if="isOpen" class="fixed inset-0 modal-backdrop flex items-center justify-center z-50 p-4" @click.self="$emit('close')">
+                    <div class="modal-content p-5 sm:p-6 rounded-lg shadow-xl w-full" :class="widthClass" @click.stop>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-white">{{ title }}</h3>
+                            <button @click="$emit('close')" class="text-gray-500 hover:text-gray-300 transition-colors">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <slot></slot>
+                    </div>
+                </div>`
+        };
+
+        const app = Vue.createApp({
+            components: { 'modal': ModalComponent },
+            data() {
+                return {
+                    boardTitle: "Sudoku Game",
+                    sudokuGrid: [], 
+                    selectedCell: { r: -1, c: -1 },
+                    currentPuzzleDefinition: null, 
+                    currentSolutionDefinition: null, 
+                    boardBgColor: DEFAULT_BOARD_BG_COLOR,
+                    
+                    isAboutModalOpen: false,
+                    isNewGameSubmenuOpen: false, 
+                    isMessageModalOpen: false,
+                    messageModalTitle: '',
+                    messageModalText: '',
+                    messageModalType: 'info', 
+                    gameWon: false,
+                    justChecked: false, // Used to style correct numbers after a successful check or win
+                }
+            },
+            computed: {
+                messageModalTypeClass() {
+                    if (this.messageModalType === 'success') return 'text-green-400';
+                    if (this.messageModalType === 'error') return 'text-red-400';
+                    return 'text-sky-400'; 
+                }
+            },
+            methods: {
+                toggleNewGameSubmenu() {
+                    this.isNewGameSubmenuOpen = !this.isNewGameSubmenuOpen;
+                },
+                selectDifficulty(difficulty) {
+                    this.startNewGame(difficulty);
+                    this.isNewGameSubmenuOpen = false; 
+                },
+                startNewGame(difficulty) {
+                    this.gameWon = false;
+                    this.justChecked = false;
+                    const puzzleData = verifiedPuzzles[difficulty]; 
+                    if (!puzzleData) {
+                        console.error("Invalid difficulty or puzzle data not found:", difficulty);
+                        this.showMessage("Error", "Could not load puzzle for this difficulty.", "error");
+                        return;
+                    }
+                    this.currentPuzzleDefinition = JSON.parse(JSON.stringify(puzzleData.puzzle));
+                    this.currentSolutionDefinition = JSON.parse(JSON.stringify(puzzleData.solution));
+                    this.loadPuzzle(); // This will also clear errors by re-initializing cells
+                    this.selectedCell = { r: -1, c: -1 };
+                },
+
+                loadPuzzle() {
+                    if (!this.currentPuzzleDefinition) return;
+                    this.sudokuGrid = this.currentPuzzleDefinition.map(row => 
+                        row.map(val => ({
+                            currentValue: val,
+                            fixed: val !== 0,
+                            isError: false // Initialize/reset error state
+                        }))
+                    );
+                },
+
+                selectCell(r, c) {
+                    this.selectedCell = { r, c };
+                    // this.justChecked = false; // Keep justChecked state until next check or new game
+                },
+
+                isSelected(r, c) {
+                    return this.selectedCell.r === r && this.selectedCell.c === c;
+                },
+
+                isRelated(r, c) {
+                    if (this.selectedCell.r === -1) return false;
+                    if (this.isSelected(r,c)) return false; 
+
+                    const selectedR = this.selectedCell.r;
+                    const selectedC = this.selectedCell.c;
+
+                    if (r === selectedR || c === selectedC) return true;
+
+                    const boxStartR = Math.floor(selectedR / 3) * 3;
+                    const boxStartC = Math.floor(selectedC / 3) * 3;
+                    if (r >= boxStartR && r < boxStartR + 3 && c >= boxStartC && c < boxStartC + 3) return true;
+                    
+                    return false;
+                },
+
+                inputNumber(num) { 
+                    if (this.selectedCell.r === -1 || this.gameWon) return;
+                    const { r, c } = this.selectedCell;
+                    const cell = this.sudokuGrid[r][c];
+
+                    if (!cell.fixed) {
+                        cell.currentValue = num;
+                        cell.isError = false; // Clear error for this specific cell on new input
+                    }
+                },
+                
+                clearAllErrors() {
+                    for (let i = 0; i < 9; i++) {
+                        for (let j = 0; j < 9; j++) {
+                            this.sudokuGrid[i][j].isError = false;
+                        }
+                    }
+                },
+
+                checkPuzzle() {
+                    if (this.gameWon) {
+                        this.showMessage("Game Over", "You've already solved this puzzle!", "info");
+                        return;
+                    }
+                    this.clearAllErrors(); 
+                    let hasErrors = false;
+                    let isFull = true;
+
+                    for (let r_idx = 0; r_idx < 9; r_idx++) {
+                        for (let c_idx = 0; c_idx < 9; c_idx++) {
+                            const cell = this.sudokuGrid[r_idx][c_idx];
+                            if (cell.currentValue === 0) {
+                                isFull = false;
+                            } else { 
+                                if (!this.isMoveValid(r_idx, c_idx, cell.currentValue)) {
+                                    cell.isError = true; 
+                                    hasErrors = true;
+                                }
+                            }
+                        }
+                    }
+                    
+                    this.justChecked = true; 
+
+                    if (hasErrors) {
+                        this.showMessage("Check Results", "There are some errors in your solution. Keep trying!", "error");
+                        this.gameWon = false; 
+                    } else if (!isFull) {
+                        this.showMessage("Check Results", "No errors found so far, but the puzzle is not complete yet.", "info");
+                        this.gameWon = false;
+                    } else { 
+                        this.showMessage("Congratulations!", "You've solved the Sudoku puzzle correctly!", "success");
+                        this.gameWon = true;
+                    }
+                },
+
+                isMoveValid(r, c, num) { 
+                    if (num === 0) return true; 
+                    
+                    for (let i = 0; i < 9; i++) {
+                        if (i !== c && this.sudokuGrid[r][i].currentValue === num) return false;
+                    }
+                    for (let i = 0; i < 9; i++) {
+                        if (i !== r && this.sudokuGrid[i][c].currentValue === num) return false;
+                    }
+                    const boxStartR = Math.floor(r / 3) * 3;
+                    const boxStartC = Math.floor(c / 3) * 3;
+                    for (let i = boxStartR; i < boxStartR + 3; i++) {
+                        for (let j = boxStartC; j < boxStartC + 3; j++) {
+                            if ((i !== r || j !== c) && this.sudokuGrid[i][j].currentValue === num) return false;
+                        }
+                    }
+                    return true; 
+                },
+
+                solvePuzzle() {
+                    if (!this.currentSolutionDefinition) {
+                        this.showMessage("Error", "No solution available for this puzzle.", "error");
+                        return;
+                    }
+                    this.clearAllErrors(); 
+                    this.sudokuGrid = this.currentSolutionDefinition.map((row, r_idx) => 
+                        row.map((val, c_idx) => ({
+                            currentValue: val,
+                            fixed: this.currentPuzzleDefinition[r_idx][c_idx] !== 0, 
+                            isError: false
+                        }))
+                    );
+                    this.gameWon = true; 
+                    this.justChecked = true; 
+                    this.selectedCell = {r: -1, c: -1}; 
+                    this.showMessage("Solved", "The puzzle has been solved for you.", "info");
+                },
+
+                resetPuzzle() {
+                    // Determine current difficulty to restart with the same one
+                    let currentDifficulty = 'easy'; // Default
+                    if (this.currentPuzzleDefinition) {
+                        for (const diff of ['easy', 'medium', 'hard']) {
+                            if (JSON.stringify(verifiedPuzzles[diff].puzzle) === JSON.stringify(this.currentPuzzleDefinition)) {
+                                currentDifficulty = diff;
+                                break;
+                            }
+                        }
+                    }
+                    this.startNewGame(currentDifficulty);
+                },
+                
+                showMessage(title, text, type = 'info') {
+                    this.messageModalTitle = title;
+                    this.messageModalText = text;
+                    this.messageModalType = type;
+                    this.isMessageModalOpen = true;
+                },
+
+                handleGlobalClick(event) {
+                    const newGameSubmenuEl = this.$refs.newGameSubmenuElement;
+                    const newGameButtonEl = this.$refs.newGameButton;
+                    if (this.isNewGameSubmenuOpen && newGameSubmenuEl && !newGameSubmenuEl.contains(event.target) &&
+                        (!newGameButtonEl || (newGameButtonEl && !newGameButtonEl.contains(event.target)))) {
+                        this.isNewGameSubmenuOpen = false;
+                    }
+                },
+
+                handleGlobalKeyDown(e) {
+                    if (e.key === 'Escape') {
+                        if (this.isMessageModalOpen) this.isMessageModalOpen = false;
+                        else if (this.isAboutModalOpen) this.isAboutModalOpen = false;
+                        else if (this.isNewGameSubmenuOpen) this.isNewGameSubmenuOpen = false;
+                        else if (this.selectedCell.r !== -1 || this.selectedCell.c !== -1) { 
+                           this.selectedCell = { r: -1, c: -1 }; 
+                        }
+                        return; 
+                    }
+
+                    if (!this.isMessageModalOpen && !this.isAboutModalOpen && !this.isNewGameSubmenuOpen) {
+                        if (this.selectedCell.r !== -1 && !this.gameWon) { 
+                            if (e.key >= '1' && e.key <= '9') {
+                                this.inputNumber(parseInt(e.key));
+                                e.preventDefault();
+                            } else if (e.key === 'Backspace' || e.key === 'Delete') {
+                                this.inputNumber(0); 
+                                e.preventDefault();
+                            } else if (e.key.startsWith('Arrow')) {
+                                e.preventDefault();
+                                let { r, c } = this.selectedCell;
+                                if (e.key === 'ArrowUp' && r > 0) r--;
+                                else if (e.key === 'ArrowDown' && r < 8) r++;
+                                else if (e.key === 'ArrowLeft' && c > 0) c--;
+                                else if (e.key === 'ArrowRight' && c < 8) c++;
+                                this.selectCell(r, c);
+                            }
+                        }
+                    }
+                }
+            },
+            mounted() {
+                this.startNewGame('easy'); 
+                document.addEventListener('click', this.handleGlobalClick, true); 
+                document.addEventListener('keydown', this.handleGlobalKeyDown);
+            },
+            beforeUnmount() {
+                document.removeEventListener('click', this.handleGlobalClick, true);
+                document.removeEventListener('keydown', this.handleGlobalKeyDown);
+            }
+        });
+        app.mount('#app');
+    </script>
+</body>
+</html>

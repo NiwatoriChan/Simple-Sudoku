@@ -600,6 +600,9 @@
                         this.showMessage("Game Over", "You've already solved this puzzle!", "info");
                         return;
                     }
+                    const numericGrid = this.sudokuGrid.map(row => 
+                        row.map(cell => cell.currentValue)
+                    );
                     this.clearAllErrors(); 
                     let hasErrors = false;
                     let isFull = true;
@@ -611,7 +614,7 @@
                             if (cell.currentValue === 0) {
                                 isFull = false;
                             } else { 
-                                if (!this.sudokuGenerator._isValidPlacement(this.sudokuGrid, r_idx, c_idx, cell.currentValue)) {
+                                if (!this.sudokuGenerator._isValidPlacement(numericGrid, r_idx, c_idx, cell.currentValue)) {
                                     cell.isError = true; 
                                     hasErrors = true;
                                 }

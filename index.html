@@ -198,16 +198,19 @@
             </div>
             <div class="mt-3 sm:mt-4 flex justify-center space-x-2">
                 <button @click="currentInputMode = 'normal'"
-                        :class="['tool-button px-3 py-1 sm:px-4 sm:py-1.5 text-xs sm:text-sm rounded-md', currentInputMode === 'normal' ? 'bg-blue-600 text-white ring-2 ring-blue-400' : 'bg-slate-600 hover:bg-slate-500 text-gray-200']">
-                    Normal
+                        aria-label="Normal input mode"
+                        :class="['tool-button p-2 sm:p-2.5 text-sm sm:text-base rounded-md', currentInputMode === 'normal' ? 'bg-blue-600 text-white ring-2 ring-blue-400' : 'bg-slate-600 hover:bg-slate-500 text-gray-200']">
+                    <i class="fas fa-pencil-alt"></i>
                 </button>
                 <button @click="currentInputMode = 'red'"
-                        :class="['tool-button px-3 py-1 sm:px-4 sm:py-1.5 text-xs sm:text-sm rounded-md', currentInputMode === 'red' ? 'bg-red-600 text-white ring-2 ring-red-400' : 'bg-slate-600 hover:bg-slate-500 text-gray-200']">
-                    Red Cs
+                        aria-label="Red candidate input mode"
+                        :class="['tool-button p-2 sm:p-2.5 text-sm sm:text-base rounded-md', currentInputMode === 'red' ? 'bg-red-600 text-white ring-2 ring-red-400' : 'bg-slate-600 hover:bg-slate-500 text-gray-200']">
+                    <i class="fas fa-pencil-alt"></i>
                 </button>
                 <button @click="currentInputMode = 'green'"
-                        :class="['tool-button px-3 py-1 sm:px-4 sm:py-1.5 text-xs sm:text-sm rounded-md', currentInputMode === 'green' ? 'bg-green-600 text-white ring-2 ring-green-400' : 'bg-slate-600 hover:bg-slate-500 text-gray-200']">
-                    Green Cs
+                        aria-label="Green candidate input mode"
+                        :class="['tool-button p-2 sm:p-2.5 text-sm sm:text-base rounded-md', currentInputMode === 'green' ? 'bg-green-600 text-white ring-2 ring-green-400' : 'bg-slate-600 hover:bg-slate-500 text-gray-200']">
+                    <i class="fas fa-pencil-alt"></i>
                 </button>
             </div>
         </div>

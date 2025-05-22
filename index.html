@@ -161,7 +161,11 @@
             <div id="number-pad" class="mt-3 sm:mt-4 grid grid-cols-5 gap-1 sm:gap-1.5 md:gap-2">
                 <button v-for="num in [1,2,3,4,5,6,7,8,9]" :key="num"
                         @click="inputNumber(num)"
-                        class="tool-button w-10 h-10 text-lg sm:w-12 sm:h-12 sm:text-xl md:w-14 md:h-14 md:text-2xl lg:w-16 lg:h-16 lg:text-3xl bg-sky-600 hover:bg-sky-500 text-white rounded-md">
+                        :class="['tool-button w-10 h-10 text-lg sm:w-12 sm:h-12 sm:text-xl md:w-14 md:h-14 md:text-2xl lg:w-16 lg:h-16 lg:text-3xl rounded-md', {
+                            'bg-slate-500 text-slate-300 cursor-not-allowed opacity-75': numberCounts[num] === 9,
+                            'bg-sky-600 hover:bg-sky-500 text-white': numberCounts[num] < 9
+                        }]"
+                        :disabled="numberCounts[num] === 9">
                     {{num}}
                 </button>
                 <button @click="inputNumber(0)" title="Clear cell (Backspace/Delete)"
@@ -408,6 +412,7 @@
                     messageModalType: 'info', 
                     gameWon: false,
                     justChecked: false,
+                    numberCounts: {},
                 }
             },
             computed: {
@@ -426,6 +431,7 @@
                     this.isNewGameSubmenuOpen = false; 
                 },
                 startNewGame(difficulty) {
+                    this.numberCounts = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0};
                     this.gameWon = false;
                     this.justChecked = false;
                     this.currentDifficulty = difficulty;
@@ -439,6 +445,17 @@
                         difficulty, 
                         seedObj 
                     );
+                    
+                    if (this.currentPuzzleDefinition) {
+                        for (let r = 0; r < 9; r++) {
+                            for (let c = 0; c < 9; c++) {
+                                const val = this.currentPuzzleDefinition[r][c];
+                                if (val >= 1 && val <= 9) {
+                                    this.numberCounts[val]++;
+                                }
+                            }
+                        }
+                    }
                     
                     this.currentSeed = seedObj.currentSeed; // Update the app's seed for the next game
                     
@@ -474,7 +491,18 @@
                 },
                 inputNumber(num) { 
                     if (this.selectedCell.r === -1 || this.gameWon) return;
-                    const { r, c } = this.selectedCell;
+                    const { r, c } = this.selectedCell; // Ensure r, c are defined
+                    const cellForCount = this.sudokuGrid[r][c];
+                    const oldValue = cellForCount.currentValue;
+
+                    if (oldValue >= 1 && oldValue <= 9) {
+                        if (this.numberCounts[oldValue] > 0) { // Ensure not decrementing below 0
+                             this.numberCounts[oldValue]--;
+                        }
+                    }
+                    if (num >= 1 && num <= 9) {
+                        this.numberCounts[num]++;
+                    }
                     const cell = this.sudokuGrid[r][c];
                     if (!cell.fixed) {
                         cell.currentValue = num;
@@ -547,6 +575,17 @@
                     if (!this.currentSolutionDefinition) {
                         this.showMessage("Error", "No solution available for this puzzle.", "error");
                         return;
+                    }
+                    this.numberCounts = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0};
+                    if (this.currentSolutionDefinition) {
+                        for (let r = 0; r < 9; r++) {
+                            for (let c = 0; c < 9; c++) {
+                                const val = this.currentSolutionDefinition[r][c];
+                                if (val >= 1 && val <= 9) {
+                                    this.numberCounts[val]++;
+                                }
+                            }
+                        }
                     }
                     this.clearAllErrors(); 
                     this.sudokuGrid = this.currentSolutionDefinition.map((row, r_idx) => 

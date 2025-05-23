@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sudoku Game (Vue.js)</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" xintegrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
         body {
@@ -28,29 +28,29 @@
         .tool-button {
             transition: background-color 0.2s ease-in-out, transform 0.1s ease, color 0.2s ease-in-out;
             display: inline-flex; align-items: center; justify-content: center;
-            height: 2.25rem; 
-            padding-left: 0.5rem; 
-            padding-right: 0.5rem; 
-            border-radius: 0.375rem; 
-            font-weight: 500; 
+            height: 2.25rem; /* Base height for mobile */
+            padding-left: 0.5rem; /* Base padding for mobile */
+            padding-right: 0.5rem; /* Base padding for mobile */
+            border-radius: 0.375rem; /* rounded-md */
+            font-weight: 500; /* medium */
         }
-        @media (min-width: 640px) { 
+        @media (min-width: 640px) { /* sm breakpoint */
             .tool-button {
-                height: 2.5rem; 
-                padding-left: 1rem;
+                height: 2.5rem; /* sm:h-10 */
+                padding-left: 1rem; /* sm:px-4 */
                 padding-right: 1rem;
             }
         }
 
         .tool-button.icon-only { 
-            width: 2.25rem; 
-            padding-left: 0.5rem; 
-            padding-right: 0.5rem;
+            width: 2.25rem; /* Base width for mobile */
+            padding-left: 0.5rem; /* Adjust if needed */
+            padding-right: 0.5rem; /* Adjust if needed */
         }
-        @media (min-width: 640px) { 
+        @media (min-width: 640px) { /* sm breakpoint */
             .tool-button.icon-only {
-                width: 2.5rem;
-                padding-left: 0.75rem;
+                width: 2.5rem; /* sm:w-10 */
+                padding-left: 0.75rem; /* sm:p-2.5 if icon only */
                 padding-right: 0.75rem;
             }
         }
@@ -59,48 +59,53 @@
         .modal-backdrop { background-color: rgba(0, 0, 0, 0.7); } 
         .modal-content { 
             transform: scale(0.95); opacity: 0; animation: modal-appear 0.3s forwards; 
-            background-color: #161b22; 
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3), 0 20px 40px rgba(0,0,0,0.2);
+            background-color: #161b22; /* A slightly lighter dark shade for modal */
+            border: 1px solid rgba(255,255,255,0.1); /* Subtle border */
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3), 0 20px 40px rgba(0,0,0,0.2); /* Enhanced shadow */
         }
         @keyframes modal-appear { to { opacity: 1; transform: scale(1); } }
 
+        /* Sudoku Grid Borders - ensuring they are crisp */
         #sudoku-grid .sudoku-cell {
             transition: background-color 0.15s ease-in-out;
         }
+        /* Major grid lines (between 3x3 blocks) */
         #sudoku-grid .sudoku-cell:nth-child(3n):not(:last-child) { border-right-width: 2px; } 
         #sudoku-grid > div:nth-child(3n):not(:last-child) .sudoku-cell { border-bottom-width: 2px; }
+        /* Explicitly target the 3rd and 6th rows of cells for bottom border */
         #sudoku-grid > div:nth-child(3) .sudoku-cell,
         #sudoku-grid > div:nth-child(6) .sudoku-cell { border-bottom-width: 2px; }
         
-        @media (min-width: 640px) { 
+        @media (min-width: 640px) { /* sm breakpoint - thicker borders for larger screens */
             #sudoku-grid .sudoku-cell:nth-child(3n):not(:last-child) { border-right-width: 3px; }
             #sudoku-grid > div:nth-child(3n):not(:last-child) .sudoku-cell { border-bottom-width: 3px; }
             #sudoku-grid > div:nth-child(3) .sudoku-cell,
             #sudoku-grid > div:nth-child(6) .sudoku-cell { border-bottom-width: 3px; }
         }
 
-        #sudoku-grid .sudoku-cell:nth-child(9) { border-right-width: 1px; }
-        #sudoku-grid > div:nth-child(9) .sudoku-cell { border-bottom-width: 1px; }
+        /* Ensure the last column and row don't have the thick border from 3n */
+        #sudoku-grid .sudoku-cell:nth-child(9) { border-right-width: 1px; } /* Reset to default border */
+        #sudoku-grid > div:nth-child(9) .sudoku-cell { border-bottom-width: 1px; } /* Reset to default border */
+
 
         .submenu-item {
             display: block;
-            padding: 0.5rem 1rem; 
-            font-size: 0.875rem; 
-            color: #d1d5db; 
+            padding: 0.5rem 1rem; /* p-2 px-4 */
+            font-size: 0.875rem; /* text-sm */
+            color: #d1d5db; /* text-gray-300 */
             cursor: pointer;
             transition: background-color 0.15s ease, color 0.15s ease;
         }
         .submenu-item:hover {
-            background-color: #374151; 
-            color: #ffffff; 
+            background-color: #374151; /* hover:bg-gray-700 */
+            color: #ffffff; /* hover:text-white */
         }
 
         [v-cloak] { display: none; }
     </style>
 </head>
 <body class="dark bg-slate-900 text-gray-200 flex flex-col h-screen overflow-hidden">
-    <div id="app" class="flex flex-col h-full">
+    <div id="app" class="flex flex-col h-full" v-cloak>
         <div id="toolbar" class="p-2 m-1 sm:m-2 flex items-center space-x-1 flex-wrap bg-slate-800 border border-slate-700 rounded-lg shadow">
             <h2 class="text-md sm:text-lg font-semibold text-gray-100 px-1 sm:px-2 py-1 whitespace-nowrap">Sudoku</h2>
             <span class="border-r h-5 sm:h-6 border-slate-600 hidden xs:block"></span>
@@ -144,39 +149,36 @@
                          class="sudoku-cell aspect-square flex items-center justify-center cursor-pointer border border-slate-500 sm:border-slate-600"
                          :class="{
                              'bg-slate-800 hover:bg-slate-700/70': !cell.fixed && !isSelected(r_idx, c_idx) && !isRelated(r_idx, c_idx) && !cell.isError,
-                             'bg-slate-800/60': cell.fixed && !isSelected(r_idx, c_idx) && !isRelated(r_idx, c_idx), // text-sky-300 font-bold moved
+                             'bg-slate-800/60': cell.fixed && !isSelected(r_idx, c_idx) && !isRelated(r_idx, c_idx),
                              'bg-sky-700 ring-1 sm:ring-2 ring-sky-500 sm:ring-sky-400 z-10': isSelected(r_idx, c_idx),
                              'bg-slate-700/50': isRelated(r_idx, c_idx) && !isSelected(r_idx, c_idx) && !cell.isError,
-                             'bg-red-800/30 hover:bg-red-700/50': cell.isError, // text-red-400 font-bold moved
-                             // 'text-green-400': cell.currentValue !== 0 && !cell.fixed && !cell.isError && justChecked && gameWon, // moved
-                             'border-r-slate-400 dark:border-r-slate-300': (c_idx + 1) % 3 === 0 && c_idx !== 8,
-                             'border-b-slate-400 dark:border-b-slate-300': (r_idx + 1) % 3 === 0 && r_idx !== 8
+                             'bg-red-800/30 hover:bg-red-700/50': cell.isError,
+                             'border-r-slate-400 dark:border-r-slate-300': (c_idx + 1) % 3 === 0 && c_idx !== 8, // Minor grid lines
+                             'border-b-slate-400 dark:border-b-slate-300': (r_idx + 1) % 3 === 0 && r_idx !== 8  // Minor grid lines
                          }"
                          @click="selectCell(r_idx, c_idx)">
-    <!-- Display Main Number if it exists -->
-    <span v-if="cell.currentValue !== 0"
-          :class="{
-              'text-sky-300 font-bold': cell.fixed,
-              'text-green-400': cell.currentValue !== 0 && !cell.fixed && !cell.isError && justChecked && gameWon,
-              'text-red-400': cell.isError,
-              'text-gray-200': !cell.fixed && !cell.isError && !(justChecked && gameWon)
-          }"
-          class="text-lg sm:text-xl md:text-2xl lg:text-3xl font-medium"> <!-- Base size and weight for main numbers -->
-        {{ cell.currentValue }}
-    </span>
+                        <span v-if="cell.currentValue !== 0"
+                              :class="{
+                                  'text-sky-300 font-bold': cell.fixed,
+                                  'text-green-400': cell.currentValue !== 0 && !cell.fixed && !cell.isError && justChecked && gameWon,
+                                  'text-red-400': cell.isError,
+                                  'text-gray-200': !cell.fixed && !cell.isError && !(justChecked && gameWon)
+                              }"
+                              class="text-lg sm:text-xl md:text-2xl lg:text-3xl font-medium">
+                            {{ cell.currentValue }}
+                        </span>
 
-    <!-- Display Candidates if no Main Number -->
-    <div v-else class="w-full h-full grid grid-cols-3 grid-rows-3 items-center justify-items-center p-px text-xs sm:text-xs md:text-sm font-light leading-none select-none">
-        <template v-for="candidateValue in [1,2,3,4,5,6,7,8,9]" :key="candidateValue">
-            <span :class="{
-                      'text-red-400': cell.candidates.red.includes(candidateValue),
-                      'text-green-400': cell.candidates.green.includes(candidateValue) && !cell.candidates.red.includes(candidateValue),
-                      'invisible': !cell.candidates.red.includes(candidateValue) && !cell.candidates.green.includes(candidateValue)
-                  }">
-                {{ candidateValue }}
-            </span>
-        </template>
-    </div>
+                        <div v-else class="w-full h-full grid grid-cols-3 grid-rows-3 items-center justify-items-center p-px text-xs sm:text-xs md:text-sm font-light leading-none select-none">
+                            <template v-for="candidateValue in [1,2,3,4,5,6,7,8,9]" :key="candidateValue">
+                                <span :class="{
+                                          'text-red-400': cell.candidates.red.includes(candidateValue),
+                                          'text-green-400': cell.candidates.green.includes(candidateValue) && !cell.candidates.red.includes(candidateValue),
+                                          'invisible': !cell.candidates.red.includes(candidateValue) && !cell.candidates.green.includes(candidateValue)
+                                      }">
+                                    {{ candidateValue }}
+                                </span>
+                            </template>
+                        </div>
                     </div>
                 </template>
             </div>
@@ -185,18 +187,18 @@
                 <button v-for="num in [1,2,3,4,5,6,7,8,9]" :key="num"
                         @click="inputNumber(num)"
                         :class="['tool-button w-10 h-10 text-lg sm:w-12 sm:h-12 sm:text-xl md:w-14 md:h-14 md:text-2xl lg:w-16 lg:h-16 lg:text-3xl rounded-md', {
-                            'bg-slate-500 text-slate-300 cursor-not-allowed opacity-75': numberCounts[num] === 9,
-                            'bg-sky-600 hover:bg-sky-500 text-white': numberCounts[num] < 9
+                            'bg-slate-500 text-slate-300 cursor-not-allowed opacity-75': numberCounts[num] === 9 && currentInputMode === 'normal',
+                            'bg-sky-600 hover:bg-sky-500 text-white': !(numberCounts[num] === 9 && currentInputMode === 'normal')
                         }]"
-                        :disabled="numberCounts[num] === 9">
+                        :disabled="numberCounts[num] === 9 && currentInputMode === 'normal'">
                     {{num}}
                 </button>
-                <button @click="inputNumber(0)" title="Clear cell (Backspace/Delete)"
+                <button @click="inputNumber(0)" title="Clear cell (Backspace/Delete/0)"
                         class="tool-button w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 bg-slate-600 hover:bg-slate-500 text-white rounded-md">
                     <i class="fas fa-backspace text-lg sm:text-xl md:text-2xl lg:text-3xl"></i>
                 </button>
             </div>
-            <div class="mt-3 sm:mt-4 flex justify-center space-x-2">
+             <div class="mt-3 sm:mt-4 flex justify-center space-x-2">
                 <button @click="currentInputMode = 'normal'"
                         aria-label="Normal input mode"
                         :class="['tool-button p-2 sm:p-2.5 text-sm sm:text-base rounded-md', currentInputMode === 'normal' ? 'bg-blue-600 text-white ring-2 ring-blue-400' : 'bg-slate-600 hover:bg-slate-500 text-gray-200']">
@@ -223,9 +225,9 @@
         </modal>
 
         <modal :is-open="isAboutModalOpen" @close="isAboutModalOpen = false" title="About Sudoku Game" width-class="max-w-xs sm:max-w-sm md:max-w-md"> 
-            <p class="text-gray-300 mb-2 text-sm sm:text-base"><strong>Version:</strong> 1.1.0</p> 
-            <p class="text-gray-300 mb-4 text-sm sm:text-base">A classic Sudoku puzzle game with dynamically generated puzzles.</p>
-            <p class="text-gray-300 mb-4 text-xs sm:text-sm">Select a cell and use the number pad or your keyboard (1-9 to input, Backspace/Delete to clear, Arrow keys to navigate) to fill the grid. Errors are shown after clicking 'Check'.</p>
+            <p class="text-gray-300 mb-2 text-sm sm:text-base"><strong>Version:</strong> 1.2.0 (LocalStorage Fixed)</p> 
+            <p class="text-gray-300 mb-4 text-sm sm:text-base">A classic Sudoku puzzle game with dynamically generated puzzles and progress saving.</p>
+            <p class="text-gray-300 mb-4 text-xs sm:text-sm">Select a cell and use the number pad or your keyboard (1-9 to input, 0/Backspace/Delete to clear, Arrow keys to navigate) to fill the grid. Use the pencil icons to switch to candidate input mode. Errors are shown after clicking 'Check'.</p>
             <div class="border-t border-slate-700 pt-3 sm:pt-4 mt-3 sm:mt-4">
                 <h4 class="text-sm sm:text-md font-semibold mb-2 text-gray-200">Built with:</h4>
                 <ul class="list-disc list-inside text-xs sm:text-sm text-gray-400">
@@ -240,18 +242,19 @@
     </div>
 
     <script>
-        const DEFAULT_BOARD_BG_COLOR = '#0d1117'; 
-        
+        const DEFAULT_BOARD_BG_COLOR = '#0d1117';
+
         const LCG_A_GEN = 1664525;
         const LCG_C_GEN = 1013904223;
         const LCG_M_GEN = Math.pow(2, 32);
 
         // Difficulty settings: Target number of clues (filled cells)
-        const difficultySettings = {
-            easy: { clues: 36 + Math.floor(Math.random() * 5) }, // 36-40
-            medium: { clues: 30 + Math.floor(Math.random() * 5) }, // 30-34
-            hard: { clues: 24 + Math.floor(Math.random() * 4) }  // 24-27
-        };
+        // These are now dynamic within the generator for better seeding.
+        // const difficultySettings = {
+        //     easy: { clues: 36 + Math.floor(Math.random() * 5) }, // 36-40
+        //     medium: { clues: 30 + Math.floor(Math.random() * 5) }, // 30-34
+        //     hard: { clues: 24 + Math.floor(Math.random() * 4) }  // 24-27
+        // };
         
         class SudokuGenerator {
             constructor() {
@@ -259,16 +262,18 @@
                 this.solutionCount = 0;
             }
 
+            // LCG seeded random number generator
             _seededRandom(seed) {
                 const nextSeed = (LCG_A_GEN * seed + LCG_C_GEN) % LCG_M_GEN;
                 return { randomNumber: nextSeed / LCG_M_GEN, nextSeed: nextSeed };
             }
 
-            _shuffleArray(array, seedObj) {
+            // Fisher-Yates shuffle using the seeded random number generator
+            _shuffleArray(array, seedObj) { // seedObj is an object { currentSeed: value }
                 let m = array.length, t, i;
                 while (m) {
                     const { randomNumber, nextSeed } = this._seededRandom(seedObj.currentSeed);
-                    seedObj.currentSeed = nextSeed;
+                    seedObj.currentSeed = nextSeed; // Update the seed in the passed object
                     i = Math.floor(randomNumber * m--);
                     t = array[m];
                     array[m] = array[i];
@@ -291,10 +296,15 @@
             }
             
             _isValidPlacement(grid, r, c, val) {
+                // Check row
                 for (let i = 0; i < 9; i++) {
                     if (grid[r][i] === val && i !== c) return false;
+                }
+                // Check column
+                for (let i = 0; i < 9; i++) {
                     if (grid[i][c] === val && i !== r) return false;
                 }
+                // Check 3x3 subgrid
                 const startRow = r - (r % 3);
                 const startCol = c - (c % 3);
                 for (let i = 0; i < 3; i++) {
@@ -321,23 +331,23 @@
                     const c = i % 9;
                     if (grid[r][c] === 0) {
                         let localNumberList = [...this.numberList];
-                        this._shuffleArray(localNumberList, seedObj);
+                        this._shuffleArray(localNumberList, seedObj); // Use the seeded shuffle
                         for (const val of localNumberList) {
                             if (this._isValidPlacement(grid, r, c, val)) {
                                 grid[r][c] = val;
                                 if (this._isGridFull(grid)) {
-                                    return true;
+                                    return true; // Found a solution
                                 }
                                 if (this._fillRecursive(grid, seedObj)) {
-                                    return true;
+                                    return true; // Propagate success upwards
                                 }
-                                grid[r][c] = 0;
+                                grid[r][c] = 0; // Backtrack
                             }
                         }
-                        return false;
+                        return false; // No valid number found for this cell
                     }
                 }
-                return true;
+                return true; // Grid is filled (should be caught by _isGridFull earlier)
             }
 
             countSolutions(grid) {
@@ -347,13 +357,13 @@
             }
 
             _countSolutionsRecursive(grid) {
-                if (this.solutionCount > 1) return;
+                if (this.solutionCount > 1) return; // Optimization: stop if more than one solution found
 
                 for (let r = 0; r < 9; r++) {
                     for (let c = 0; c < 9; c++) {
-                        if (grid[r][c] === 0) {
+                        if (grid[r][c] === 0) { // Find an empty cell
                             for (let val = 1; val <= 9; val++) {
-                                if (this.solutionCount > 1) return; 
+                                if (this.solutionCount > 1) return; // Check again inside the loop
                                 if (this._isValidPlacement(grid, r, c, val)) {
                                     grid[r][c] = val;
                                     if (this._isGridFull(grid)) {
@@ -361,20 +371,16 @@
                                     } else {
                                         this._countSolutionsRecursive(grid);
                                     }
-                                    grid[r][c] = 0; 
+                                    grid[r][c] = 0; // Backtrack
                                 }
                             }
-                            return; 
+                            return; // Return after trying all numbers for the first empty cell
                         }
                     }
                 }
-                 // If the grid is full and valid when this function is initially called,
-                 // it means we found a solution. This case is implicitly handled if the first
-                 // check in the loop finds no empty cells.
-                 // However, if it's called on an already full grid, the loops won't run.
-                 // So, if we reach here and the grid is full, it means the initial call was on a full grid.
-                 // This should technically be caught by isGridFull before calling countSolutionsRecursive on a full grid.
-                 // The primary path is that isGridFull inside the recursion increments the counter.
+                 // This part is reached if the grid is already full when called.
+                 // If the initial call is on a full grid, it should be a solution.
+                 // However, the primary path is _isGridFull inside the recursion.
             }
 
             createPuzzleFromSolution(solvedGrid, difficulty, seedObj) {
@@ -385,26 +391,27 @@
                 const { randomNumber: diffRand, nextSeed: s1 } = this._seededRandom(seedObj.currentSeed);
                 seedObj.currentSeed = s1;
 
-                if (difficulty === 'easy') targetClues = 36 + Math.floor(diffRand * 5); 
-                else if (difficulty === 'medium') targetClues = 30 + Math.floor(diffRand * 5);
-                else if (difficulty === 'hard') targetClues = 24 + Math.floor(diffRand * 4);
-                else targetClues = 32; 
+                if (difficulty === 'easy') targetClues = 36 + Math.floor(diffRand * 5); // 36-40
+                else if (difficulty === 'medium') targetClues = 30 + Math.floor(diffRand * 5); // 30-34
+                else if (difficulty === 'hard') targetClues = 24 + Math.floor(diffRand * 4);  // 24-27
+                else targetClues = 32; // Default if difficulty string is unexpected
 
                 let currentClues = 81;
                 let cells = [];
                 for (let r = 0; r < 9; r++) for (let c = 0; c < 9; c++) cells.push({ r, c });
-                this._shuffleArray(cells, seedObj); 
+                this._shuffleArray(cells, seedObj); // Shuffle cells to try removing in random order
 
                 for (const cell of cells) {
                     if (currentClues <= targetClues) break;
                     const { r, c } = cell;
-                    if (puzzle[r][c] === 0) continue;
+                    if (puzzle[r][c] === 0) continue; // Already empty
 
                     const backup = puzzle[r][c];
-                    puzzle[r][c] = 0;
+                    puzzle[r][c] = 0; // Try removing the number
                     
+                    // Check if the puzzle still has a unique solution
                     if (this.countSolutions(puzzle) !== 1) {
-                        puzzle[r][c] = backup;
+                        puzzle[r][c] = backup; // Restore if not unique or no solution
                     } else {
                         currentClues--;
                     }
@@ -415,7 +422,7 @@
 
 
         const ModalComponent = {
-            props: { isOpen: Boolean, title: String, widthClass: { type: String, default: 'max-w-sm' } }, 
+            props: { isOpen: Boolean, title: String, widthClass: { type: String, default: 'max-w-sm' } }, // Added widthClass prop
             emits: ['close'],
             template: `
                 <div v-if="isOpen" class="fixed inset-0 modal-backdrop flex items-center justify-center z-50 p-4" @click.self="$emit('close')">
@@ -436,12 +443,12 @@
             data() {
                 return {
                     boardTitle: "Sudoku Game",
-                    sudokuGrid: [], 
+                    sudokuGrid: [], // Stores the visual grid: { currentValue, fixed, isError, candidates }
                     selectedCell: { r: -1, c: -1 },
-                    currentPuzzleDefinition: null, 
-                    currentSolutionDefinition: null, 
+                    currentPuzzleDefinition: null, // Stores the initial puzzle numbers (0 for empty)
+                    currentSolutionDefinition: null, // Stores the solved puzzle numbers
                     currentDifficulty: 'easy',
-                    currentSeed: Date.now(), 
+                    currentSeed: Date.now(), // Seed for puzzle generation
                     sudokuGenerator: new SudokuGenerator(), // Instantiate the generator
                     boardBgColor: DEFAULT_BOARD_BG_COLOR,
                     isAboutModalOpen: false,
@@ -449,18 +456,18 @@
                     isMessageModalOpen: false,
                     messageModalTitle: '',
                     messageModalText: '',
-                    messageModalType: 'info', 
+                    messageModalType: 'info', // 'info', 'success', 'error'
                     gameWon: false,
-                    justChecked: false,
-                    numberCounts: {},
-                    currentInputMode: 'normal',
+                    justChecked: false, // Flag to indicate if checkPuzzle was just run
+                    numberCounts: {}, // Counts of each number on the board
+                    currentInputMode: 'normal', // 'normal', 'red', 'green' for candidates
                 }
             },
             computed: {
                 messageModalTypeClass() {
                     if (this.messageModalType === 'success') return 'text-green-400';
                     if (this.messageModalType === 'error') return 'text-red-400';
-                    return 'text-sky-400'; 
+                    return 'text-sky-400'; // Default for 'info'
                 }
             },
             methods: {
@@ -473,13 +480,13 @@
                 },
                 startNewGame(difficulty) {
                     this.currentInputMode = 'normal';
-                    this.numberCounts = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0};
+                    this.numberCounts = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0}; // Reset counts
                     this.gameWon = false;
                     this.justChecked = false;
                     this.currentDifficulty = difficulty;
 
                     // Use a seed object that can be passed by reference to be updated by generator methods
-                    let seedObj = { currentSeed: this.currentSeed };
+                    let seedObj = { currentSeed: this.currentSeed }; 
                     
                     this.currentSolutionDefinition = this.sudokuGenerator.generateSolvedGrid(seedObj);
                     this.currentPuzzleDefinition = this.sudokuGenerator.createPuzzleFromSolution(
@@ -488,6 +495,7 @@
                         seedObj 
                     );
                     
+                    // Update number counts based on the new puzzle
                     if (this.currentPuzzleDefinition) {
                         for (let r = 0; r < 9; r++) {
                             for (let c = 0; c < 9; c++) {
@@ -499,20 +507,22 @@
                         }
                     }
                     
-                    this.currentSeed = seedObj.currentSeed; // Update the app's seed for the next game
+                    this.currentSeed = seedObj.currentSeed; // Persist the updated seed for the next game generation
                     
-                    this.loadPuzzle();
-                    this.selectedCell = { r: -1, c: -1 };
-                    this.saveGameToLocalStorage();
+                    this.loadPuzzle(); // Initialize sudokuGrid from currentPuzzleDefinition
+                    this.selectedCell = { r: -1, c: -1 }; // Reset selection
+                    this.saveGameToLocalStorage(); // Save the new game state
                 },
                 loadPuzzle() {
+                    // This function initializes the visual `sudokuGrid` based on `currentPuzzleDefinition`.
+                    // It's called when a new game starts or when loading a game (before merging user inputs).
                     if (!this.currentPuzzleDefinition) return;
                     this.sudokuGrid = this.currentPuzzleDefinition.map(row => 
                         row.map(val => ({
                             currentValue: val,
                             fixed: val !== 0,
                             isError: false,
-                            candidates: { red: [], green: [] }
+                            candidates: { red: [], green: [] } // Initialize empty candidates
                         }))
                     );
                 },
@@ -524,41 +534,40 @@
                 },
                 isRelated(r, c) {
                     if (this.selectedCell.r === -1) return false;
-                    if (this.isSelected(r,c)) return false; 
+                    if (this.isSelected(r,c)) return false; // Don't highlight the selected cell itself as "related"
                     const selectedR = this.selectedCell.r;
                     const selectedC = this.selectedCell.c;
+                    // Check row and column
                     if (r === selectedR || c === selectedC) return true;
+                    // Check 3x3 box
                     const boxStartR = Math.floor(selectedR / 3) * 3;
                     const boxStartC = Math.floor(selectedC / 3) * 3;
                     if (r >= boxStartR && r < boxStartR + 3 && c >= boxStartC && c < boxStartC + 3) return true;
                     return false;
                 },
                 inputNumber(num) {
-                    if (this.selectedCell.r === -1 || this.gameWon) return;
+                    if (this.selectedCell.r === -1 || this.gameWon) return; // No cell selected or game won
                     const { r, c } = this.selectedCell;
                     const cell = this.sudokuGrid[r][c];
 
-                    if (cell.fixed) return; // Cannot change fixed cells with any mode
+                    if (cell.fixed) return; // Cannot change fixed cells
 
                     if (this.currentInputMode === 'normal') {
-                        // Logic for Normal Mode
                         const oldValue = cell.currentValue;
 
-                        // Update numberCounts
+                        // Decrement count for the old number if it was a valid number
                         if (oldValue >= 1 && oldValue <= 9) {
-                            if (this.numberCounts[oldValue] > 0) {
-                                this.numberCounts[oldValue]--;
-                            }
+                            if (this.numberCounts[oldValue] > 0) this.numberCounts[oldValue]--;
                         }
+
+                        cell.currentValue = num; // Set new number (0 for clear)
+                        cell.isError = false; // Reset error state on input
+
+                        // Increment count for the new number if it's a valid number
                         if (num >= 1 && num <= 9) {
                             this.numberCounts[num]++;
                         }
-                        // No specific else if (num === 0 && oldValue >=1 && oldValue <=9) needed here,
-                        // as the decrement for oldValue already handled it.
-
-                        cell.currentValue = num;
-                        cell.isError = false; // Reset error state when a number is input
-
+                        
                         // If a normal number is placed (not cleared), clear candidates
                         if (num !== 0) {
                             cell.candidates.red = [];
@@ -566,15 +575,11 @@
                         }
 
                     } else if (this.currentInputMode === 'red' || this.currentInputMode === 'green') {
-                        // Logic for Candidate Modes
                         const color = this.currentInputMode; // 'red' or 'green'
 
                         if (num >= 1 && num <= 9) { // Toggle candidate
-                            // Ensure candidate input does not change cell.currentValue or numberCounts
-                            if (cell.currentValue !== 0) { // Candidates only if cell is empty
-                                // Optionally, show a message or provide feedback
-                                return;
-                            }
+                            if (cell.currentValue !== 0) return; // Candidates only if cell is empty
+
                             const candidatesArray = cell.candidates[color];
                             const index = candidatesArray.indexOf(num);
                             if (index > -1) { // Already a candidate, remove it
@@ -593,7 +598,9 @@
                 clearAllErrors() {
                     for (let i = 0; i < 9; i++) {
                         for (let j = 0; j < 9; j++) {
-                            this.sudokuGrid[i][j].isError = false;
+                            if (this.sudokuGrid[i] && this.sudokuGrid[i][j]) { // Ensure cell exists
+                                 this.sudokuGrid[i][j].isError = false;
+                            }
                         }
                     }
                 },
@@ -602,11 +609,12 @@
                         this.showMessage("Game Over", "You've already solved this puzzle!", "info");
                         return;
                     }
+                    // Create a simple numeric grid for validation logic
                     const numericGrid = this.sudokuGrid.map(row => 
                         row.map(cell => cell.currentValue)
                     );
                     this.clearAllErrors(); 
-                    let hasErrors = false;
+                    let hasRuleViolations = false;
                     let isFull = true;
                     let allCorrectAccordingToSolution = true;
 
@@ -614,12 +622,14 @@
                         for (let c_idx = 0; c_idx < 9; c_idx++) {
                             const cell = this.sudokuGrid[r_idx][c_idx];
                             if (cell.currentValue === 0) {
-                                isFull = false;
+                                isFull = false; // Puzzle is not full
                             } else { 
+                                // Check for basic Sudoku rule violations
                                 if (!this.sudokuGenerator._isValidPlacement(numericGrid, r_idx, c_idx, cell.currentValue)) {
                                     cell.isError = true; 
-                                    hasErrors = true;
+                                    hasRuleViolations = true;
                                 }
+                                // Check against the known solution
                                 if (this.currentSolutionDefinition && cell.currentValue !== this.currentSolutionDefinition[r_idx][c_idx]) {
                                     allCorrectAccordingToSolution = false;
                                     // Do not mark as error here solely based on mismatch with solution,
@@ -628,9 +638,9 @@
                             }
                         }
                     }
-                    this.justChecked = true; 
+                    this.justChecked = true; // Indicate that a check has been performed
 
-                    if (hasErrors) { // Basic Sudoku rule violations
+                    if (hasRuleViolations) {
                         this.showMessage("Check Results", "There are some rule violations in your solution. Keep trying!", "error");
                         this.gameWon = false; 
                     } else if (!isFull) {
@@ -653,15 +663,15 @@
                             this.gameWon = false;
                         }
                     }
+                    this.saveGameToLocalStorage(); // Save state after check
                 },
-                // isMoveValid is now part of SudokuGenerator, checkPuzzle calls sudokuGenerator._isValidPlacement
                 solvePuzzle() {
                     if (!this.currentSolutionDefinition) {
                         this.showMessage("Error", "No solution available for this puzzle.", "error");
                         return;
                     }
-                    this.numberCounts = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0};
-                    if (this.currentSolutionDefinition) {
+                    this.numberCounts = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0}; // Reset counts
+                     if (this.currentSolutionDefinition) {
                         for (let r = 0; r < 9; r++) {
                             for (let c = 0; c < 9; c++) {
                                 const val = this.currentSolutionDefinition[r][c];
@@ -671,30 +681,26 @@
                             }
                         }
                     }
+
                     this.clearAllErrors(); 
+                    // Rebuild the grid based on the solution, preserving fixed status from original puzzle
                     this.sudokuGrid = this.currentSolutionDefinition.map((row, r_idx) => 
                         row.map((val, c_idx) => ({
                             currentValue: val,
-                            fixed: this.currentPuzzleDefinition[r_idx][c_idx] !== 0, 
+                            fixed: this.currentPuzzleDefinition[r_idx][c_idx] !== 0, // Fixed if it was part of the initial puzzle
                             isError: false,
-                            candidates: { red: [], green: [] }
+                            candidates: { red: [], green: [] } // Clear candidates
                         }))
                     );
-                    for (let r = 0; r < 9; r++) {
-                        for (let c = 0; c < 9; c++) {
-                            if (this.sudokuGrid[r] && this.sudokuGrid[r][c]) { // Check if cell exists
-                                this.sudokuGrid[r][c].candidates.red = [];
-                                this.sudokuGrid[r][c].candidates.green = [];
-                            }
-                        }
-                    }
+                    
                     this.gameWon = true; 
-                    this.justChecked = true; 
-                    this.selectedCell = {r: -1, c: -1}; 
+                    this.justChecked = true; // To trigger any win styling
+                    this.selectedCell = {r: -1, c: -1}; // Deselect cell
                     this.showMessage("Solved", "The puzzle has been solved for you.", "info");
                     this.saveGameToLocalStorage();
                 },
                 resetPuzzle() {
+                    // Starts a new game with the same difficulty and a new seed (implicitly via startNewGame)
                     this.startNewGame(this.currentDifficulty || 'easy'); 
                 },
                 showMessage(title, text, type = 'info') {
@@ -704,10 +710,11 @@
                     this.isMessageModalOpen = true;
                 },
                 handleGlobalClick(event) {
+                    // Close new game submenu if clicked outside
                     const newGameSubmenuEl = this.$refs.newGameSubmenuElement;
                     const newGameButtonEl = this.$refs.newGameButton;
                     if (this.isNewGameSubmenuOpen && newGameSubmenuEl && !newGameSubmenuEl.contains(event.target) &&
-                        (!newGameButtonEl || (newGameButtonEl && !newGameButtonEl.contains(event.target)))) {
+                        newGameButtonEl && !newGameButtonEl.contains(event.target)) { // Check button too
                         this.isNewGameSubmenuOpen = false;
                     }
                 },
@@ -717,17 +724,18 @@
                         else if (this.isAboutModalOpen) this.isAboutModalOpen = false;
                         else if (this.isNewGameSubmenuOpen) this.isNewGameSubmenuOpen = false;
                         else if (this.selectedCell.r !== -1 || this.selectedCell.c !== -1) { 
-                           this.selectedCell = { r: -1, c: -1 }; 
+                           this.selectedCell = { r: -1, c: -1 }; // Deselect cell
                         }
                         return; 
                     }
+                    // Keyboard input for numbers and navigation
                     if (!this.isMessageModalOpen && !this.isAboutModalOpen && !this.isNewGameSubmenuOpen) {
-                        if (this.selectedCell.r !== -1 && !this.gameWon) { 
+                        if (this.selectedCell.r !== -1 && !this.gameWon) { // Cell selected and game not won
                             if (e.key >= '1' && e.key <= '9') {
                                 this.inputNumber(parseInt(e.key));
                                 e.preventDefault();
-                            } else if (e.key === 'Backspace' || e.key === 'Delete') {
-                                this.inputNumber(0); 
+                            } else if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') { // Treat '0' as clear
+                                this.inputNumber(0); // Clear cell
                                 e.preventDefault();
                             } else if (e.key.startsWith('Arrow')) {
                                 e.preventDefault();
@@ -740,116 +748,116 @@
                             }
                         }
                     }
-                }
-            },
-            saveGameToLocalStorage() {
-                try {
-                    if (!this.currentPuzzleDefinition) {
-                        // Avoid saving if the game hasn't even started or is in a weird state
-                        // console.log('Skipping save, puzzle not initialized.');
-                        return;
+                },
+                saveGameToLocalStorage() {
+                    // console.log("Attempting to save game...");
+                    try {
+                        if (!this.currentPuzzleDefinition) {
+                            // console.warn('Skipping save: currentPuzzleDefinition is missing.');
+                            return;
+                        }
+                        const gameState = {
+                            sudokuGrid: this.sudokuGrid, // The current visual grid with user inputs
+                            currentPuzzleDefinition: this.currentPuzzleDefinition,
+                            currentSolutionDefinition: this.currentSolutionDefinition,
+                            currentDifficulty: this.currentDifficulty,
+                            numberCounts: this.numberCounts,
+                            gameWon: this.gameWon,
+                            selectedCell: this.selectedCell,
+                            currentSeed: this.currentSeed // Save the seed too, for consistency if needed
+                        };
+                        localStorage.setItem('sudokuGameState', JSON.stringify(gameState));
+                        // console.log('Game state saved:', gameState);
+                    } catch (error) {
+                        console.error('Error saving game to localStorage:', error);
+                        // Potentially notify user or offer to clear storage if it's full
                     }
-                    const gameState = {
-                        sudokuGrid: this.sudokuGrid,
-                        currentPuzzleDefinition: this.currentPuzzleDefinition,
-                        currentSolutionDefinition: this.currentSolutionDefinition,
-                        currentDifficulty: this.currentDifficulty,
-                        numberCounts: this.numberCounts,
-                        gameWon: this.gameWon,
-                        selectedCell: this.selectedCell
-                    };
-                    localStorage.setItem('sudokuGameState', JSON.stringify(gameState));
-                } catch (error) {
-                    console.error('Error saving game to localStorage:', error);
-                }
-            },
-        
-            loadGameFromLocalStorage() {
-                const savedStateJSON = localStorage.getItem('sudokuGameState');
-                console.log('Saved state JSON from localStorage:', savedStateJSON);
-                if (!savedStateJSON) {
-                    return; 
-                }
-        
-                try {
-                    const loadedState = JSON.parse(savedStateJSON);
-                    console.log('Successfully parsed loadedState:', loadedState);
-                    if (loadedState) {
-                        console.log('loadedState.sudokuGrid:', loadedState.sudokuGrid);
-                        console.log('loadedState.currentPuzzleDefinition:', loadedState.currentPuzzleDefinition);
-                        console.log('loadedState.currentSolutionDefinition:', loadedState.currentSolutionDefinition);
-                        console.log('loadedState.currentDifficulty:', loadedState.currentDifficulty);
-                        console.log('loadedState.numberCounts:', loadedState.numberCounts);
-                        console.log('loadedState.gameWon:', loadedState.gameWon);
-                        console.log('loadedState.selectedCell:', loadedState.selectedCell);
+                },
+                loadGameFromLocalStorage() {
+                    // console.log("Attempting to load game...");
+                    const savedStateJSON = localStorage.getItem('sudokuGameState');
+                    if (!savedStateJSON) {
+                        // console.log('No saved game state found in localStorage.');
+                        return false; // Indicate that loading failed, so a new game should start
                     }
-                    
-                    if (!loadedState || typeof loadedState !== 'object') {
-                        console.error('Invalid saved state format. loadedState:', loadedState);
-                        localStorage.removeItem('sudokuGameState');
-                        return;
-                    }
-                    if (!loadedState.sudokuGrid || !loadedState.currentPuzzleDefinition || !loadedState.numberCounts) {
-                         console.error('Essential game data missing in saved state. currentPuzzleDefinition:', loadedState.currentPuzzleDefinition, 'sudokuGrid:', loadedState.sudokuGrid, 'numberCounts:', loadedState.numberCounts);
-                         localStorage.removeItem('sudokuGameState');
-                         console.error('Essential game data missing in saved state. currentPuzzleDefinition:', loadedState.currentPuzzleDefinition, 'sudokuGrid:', loadedState.sudokuGrid, 'numberCounts:', loadedState.numberCounts);
-                         localStorage.removeItem('sudokuGameState');
-                         return;
-                    }
-        
-                    // Restore core puzzle definitions first
-                    console.log('Restoring currentPuzzleDefinition:', loadedState.currentPuzzleDefinition);
-                    this.currentPuzzleDefinition = loadedState.currentPuzzleDefinition;
-                    console.log('Restoring currentSolutionDefinition:', loadedState.currentSolutionDefinition);
-                    this.currentSolutionDefinition = loadedState.currentSolutionDefinition;
-                    console.log('Restoring currentDifficulty:', loadedState.currentDifficulty);
-                    this.currentDifficulty = loadedState.currentDifficulty;
-        
-                    // Call loadPuzzle() to initialize sudokuGrid based on the restored puzzle definition
-                    console.log('State restored. Calling loadPuzzle() to rebuild sudokuGrid.');
-                    this.loadPuzzle(); // This will build this.sudokuGrid
-        
-                    // Merge user's progress from loadedState.sudokuGrid into the newly initialized this.sudokuGrid
-                    if (loadedState.sudokuGrid && this.sudokuGrid && this.sudokuGrid.length === 9) {
-                        console.log('Merging user progress from loadedState.sudokuGrid into the newly initialized this.sudokuGrid');
-                        for (let r = 0; r < 9; r++) {
-                            for (let c = 0; c < 9; c++) {
-                                if (this.sudokuGrid[r] && this.sudokuGrid[r][c] && loadedState.sudokuGrid[r] && loadedState.sudokuGrid[r][c]) {
-                                    // Only update if the cell is not fixed by the puzzle definition
-                                    if (!this.sudokuGrid[r][c].fixed) {
-                                        this.sudokuGrid[r][c].currentValue = loadedState.sudokuGrid[r][c].currentValue;
-                                        this.sudokuGrid[r][c].candidates = loadedState.sudokuGrid[r][c].candidates || { red: [], green: [] };
+
+                    try {
+                        const loadedState = JSON.parse(savedStateJSON);
+                        // console.log('Successfully parsed loadedState:', loadedState);
+
+                        if (!loadedState || typeof loadedState !== 'object') {
+                            console.error('Invalid saved state format. Removing from localStorage.');
+                            localStorage.removeItem('sudokuGameState');
+                            return false;
+                        }
+
+                        // Validate essential data
+                        if (!loadedState.currentPuzzleDefinition || !loadedState.sudokuGrid || !loadedState.numberCounts) {
+                             console.error('Essential game data missing in saved state. Removing from localStorage. currentPuzzleDefinition:', loadedState.currentPuzzleDefinition, 'sudokuGrid:', loadedState.sudokuGrid, 'numberCounts:', loadedState.numberCounts);
+                             localStorage.removeItem('sudokuGameState');
+                             return false;
+                        }
+
+                        // Restore core puzzle definitions and difficulty
+                        this.currentPuzzleDefinition = loadedState.currentPuzzleDefinition;
+                        this.currentSolutionDefinition = loadedState.currentSolutionDefinition; // Might be null if saved from an older version
+                        this.currentDifficulty = loadedState.currentDifficulty || 'easy';
+                        this.currentSeed = loadedState.currentSeed || Date.now(); // Restore seed
+
+                        // Initialize this.sudokuGrid based on the loaded currentPuzzleDefinition.
+                        // This ensures `fixed` properties are correctly set.
+                        this.loadPuzzle(); 
+
+                        // Now, merge the user's progress from loadedState.sudokuGrid into the newly initialized this.sudokuGrid
+                        // This step is crucial for restoring user-entered numbers, candidates, and error states.
+                        if (loadedState.sudokuGrid && this.sudokuGrid && this.sudokuGrid.length === 9) {
+                            // console.log('Merging user progress from loadedState.sudokuGrid into the initialized this.sudokuGrid');
+                            for (let r = 0; r < 9; r++) {
+                                for (let c = 0; c < 9; c++) {
+                                    // Ensure both source and target cells exist
+                                    if (this.sudokuGrid[r] && this.sudokuGrid[r][c] && loadedState.sudokuGrid[r] && loadedState.sudokuGrid[r][c]) {
+                                        const savedCell = loadedState.sudokuGrid[r][c];
+                                        const currentCell = this.sudokuGrid[r][c];
+
+                                        // Only update currentValue and candidates for non-fixed cells
+                                        if (!currentCell.fixed) {
+                                            currentCell.currentValue = savedCell.currentValue;
+                                            // Ensure candidates object and its arrays exist before assigning
+                                            currentCell.candidates = {
+                                                red: Array.isArray(savedCell.candidates?.red) ? savedCell.candidates.red : [],
+                                                green: Array.isArray(savedCell.candidates?.green) ? savedCell.candidates.green : []
+                                            };
+                                        }
+                                        // Restore error state for all cells (fixed or not)
+                                        currentCell.isError = savedCell.isError || false;
                                     }
-                                    // Restore error state for all cells
-                                    this.sudokuGrid[r][c].isError = loadedState.sudokuGrid[r][c].isError || false;
                                 }
                             }
+                        } else {
+                            console.warn('Could not merge user progress: this.sudokuGrid or loadedState.sudokuGrid is not as expected after loadPuzzle().');
                         }
-                    } else {
-                        console.warn('Could not merge user progress: this.sudokuGrid or loadedState.sudokuGrid is not as expected.');
+
+                        // Restore other game state properties
+                        this.numberCounts = loadedState.numberCounts;
+                        this.gameWon = loadedState.gameWon || false;
+                        this.selectedCell = loadedState.selectedCell || { r: -1, c: -1 };
+                        
+                        // console.log('Full game state restored.');
+                        return true; // Indicate successful load
+
+                    } catch (error) {
+                        console.error('Error loading game from localStorage:', error);
+                        localStorage.removeItem('sudokuGameState'); // Clear corrupted data
+                        return false; // Indicate that loading failed
                     }
-        
-                    // Restore other game state properties
-                    console.log('Restoring numberCounts:', loadedState.numberCounts);
-                    this.numberCounts = loadedState.numberCounts;
-                    console.log('Restoring gameWon:', loadedState.gameWon);
-                    this.gameWon = loadedState.gameWon || false;
-                    console.log('Restoring selectedCell:', loadedState.selectedCell);
-                    this.selectedCell = loadedState.selectedCell || { r: -1, c: -1 };
-                    
-                    console.log('Full game state restored, including user inputs merged into sudokuGrid.');
-        
-                } catch (error) {
-                    console.error('Error loading game from localStorage:', error);
-                    localStorage.removeItem('sudokuGameState');
                 }
             },
             mounted() {
-                this.loadGameFromLocalStorage();
-                if (!this.currentPuzzleDefinition) {
+                // Attempt to load the game. If it fails (returns false), start a new one.
+                if (!this.loadGameFromLocalStorage()) {
                     this.startNewGame(this.currentDifficulty || 'easy');
                 }
-                document.addEventListener('click', this.handleGlobalClick, true); 
+                document.addEventListener('click', this.handleGlobalClick, true); // Use capture phase for wider coverage
                 document.addEventListener('keydown', this.handleGlobalKeyDown);
             },
             beforeUnmount() {

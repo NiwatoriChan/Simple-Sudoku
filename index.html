@@ -766,31 +766,78 @@
         
             loadGameFromLocalStorage() {
                 const savedStateJSON = localStorage.getItem('sudokuGameState');
+                console.log('Saved state JSON from localStorage:', savedStateJSON);
                 if (!savedStateJSON) {
                     return; 
                 }
         
                 try {
                     const loadedState = JSON.parse(savedStateJSON);
+                    console.log('Successfully parsed loadedState:', loadedState);
+                    if (loadedState) {
+                        console.log('loadedState.sudokuGrid:', loadedState.sudokuGrid);
+                        console.log('loadedState.currentPuzzleDefinition:', loadedState.currentPuzzleDefinition);
+                        console.log('loadedState.currentSolutionDefinition:', loadedState.currentSolutionDefinition);
+                        console.log('loadedState.currentDifficulty:', loadedState.currentDifficulty);
+                        console.log('loadedState.numberCounts:', loadedState.numberCounts);
+                        console.log('loadedState.gameWon:', loadedState.gameWon);
+                        console.log('loadedState.selectedCell:', loadedState.selectedCell);
+                    }
                     
                     if (!loadedState || typeof loadedState !== 'object') {
-                        console.error('Invalid saved state format.');
+                        console.error('Invalid saved state format. loadedState:', loadedState);
                         localStorage.removeItem('sudokuGameState');
                         return;
                     }
                     if (!loadedState.sudokuGrid || !loadedState.currentPuzzleDefinition || !loadedState.numberCounts) {
-                         console.error('Essential game data missing in saved state.');
+                         console.error('Essential game data missing in saved state. currentPuzzleDefinition:', loadedState.currentPuzzleDefinition, 'sudokuGrid:', loadedState.sudokuGrid, 'numberCounts:', loadedState.numberCounts);
+                         localStorage.removeItem('sudokuGameState');
+                         console.error('Essential game data missing in saved state. currentPuzzleDefinition:', loadedState.currentPuzzleDefinition, 'sudokuGrid:', loadedState.sudokuGrid, 'numberCounts:', loadedState.numberCounts);
                          localStorage.removeItem('sudokuGameState');
                          return;
                     }
         
-                    this.sudokuGrid = loadedState.sudokuGrid;
+                    // Restore core puzzle definitions first
+                    console.log('Restoring currentPuzzleDefinition:', loadedState.currentPuzzleDefinition);
                     this.currentPuzzleDefinition = loadedState.currentPuzzleDefinition;
+                    console.log('Restoring currentSolutionDefinition:', loadedState.currentSolutionDefinition);
                     this.currentSolutionDefinition = loadedState.currentSolutionDefinition;
+                    console.log('Restoring currentDifficulty:', loadedState.currentDifficulty);
                     this.currentDifficulty = loadedState.currentDifficulty;
+        
+                    // Call loadPuzzle() to initialize sudokuGrid based on the restored puzzle definition
+                    console.log('State restored. Calling loadPuzzle() to rebuild sudokuGrid.');
+                    this.loadPuzzle(); // This will build this.sudokuGrid
+        
+                    // Merge user's progress from loadedState.sudokuGrid into the newly initialized this.sudokuGrid
+                    if (loadedState.sudokuGrid && this.sudokuGrid && this.sudokuGrid.length === 9) {
+                        console.log('Merging user progress from loadedState.sudokuGrid into the newly initialized this.sudokuGrid');
+                        for (let r = 0; r < 9; r++) {
+                            for (let c = 0; c < 9; c++) {
+                                if (this.sudokuGrid[r] && this.sudokuGrid[r][c] && loadedState.sudokuGrid[r] && loadedState.sudokuGrid[r][c]) {
+                                    // Only update if the cell is not fixed by the puzzle definition
+                                    if (!this.sudokuGrid[r][c].fixed) {
+                                        this.sudokuGrid[r][c].currentValue = loadedState.sudokuGrid[r][c].currentValue;
+                                        this.sudokuGrid[r][c].candidates = loadedState.sudokuGrid[r][c].candidates || { red: [], green: [] };
+                                    }
+                                    // Restore error state for all cells
+                                    this.sudokuGrid[r][c].isError = loadedState.sudokuGrid[r][c].isError || false;
+                                }
+                            }
+                        }
+                    } else {
+                        console.warn('Could not merge user progress: this.sudokuGrid or loadedState.sudokuGrid is not as expected.');
+                    }
+        
+                    // Restore other game state properties
+                    console.log('Restoring numberCounts:', loadedState.numberCounts);
                     this.numberCounts = loadedState.numberCounts;
+                    console.log('Restoring gameWon:', loadedState.gameWon);
                     this.gameWon = loadedState.gameWon || false;
+                    console.log('Restoring selectedCell:', loadedState.selectedCell);
                     this.selectedCell = loadedState.selectedCell || { r: -1, c: -1 };
+                    
+                    console.log('Full game state restored, including user inputs merged into sudokuGrid.');
         
                 } catch (error) {
                     console.error('Error loading game from localStorage:', error);

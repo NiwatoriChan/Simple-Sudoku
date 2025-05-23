@@ -503,6 +503,7 @@
                     
                     this.loadPuzzle();
                     this.selectedCell = { r: -1, c: -1 };
+                    this.saveGameToLocalStorage();
                 },
                 loadPuzzle() {
                     if (!this.currentPuzzleDefinition) return;
@@ -587,6 +588,7 @@
                         }
                         // cell.isError = false; // Optionally reset error state for candidate changes
                     }
+                    this.saveGameToLocalStorage();
                 },
                 clearAllErrors() {
                     for (let i = 0; i < 9; i++) {
@@ -690,6 +692,7 @@
                     this.justChecked = true; 
                     this.selectedCell = {r: -1, c: -1}; 
                     this.showMessage("Solved", "The puzzle has been solved for you.", "info");
+                    this.saveGameToLocalStorage();
                 },
                 resetPuzzle() {
                     this.startNewGame(this.currentDifficulty || 'easy'); 
@@ -739,8 +742,66 @@
                     }
                 }
             },
+            saveGameToLocalStorage() {
+                try {
+                    if (!this.currentPuzzleDefinition) {
+                        // Avoid saving if the game hasn't even started or is in a weird state
+                        // console.log('Skipping save, puzzle not initialized.');
+                        return;
+                    }
+                    const gameState = {
+                        sudokuGrid: this.sudokuGrid,
+                        currentPuzzleDefinition: this.currentPuzzleDefinition,
+                        currentSolutionDefinition: this.currentSolutionDefinition,
+                        currentDifficulty: this.currentDifficulty,
+                        numberCounts: this.numberCounts,
+                        gameWon: this.gameWon,
+                        selectedCell: this.selectedCell
+                    };
+                    localStorage.setItem('sudokuGameState', JSON.stringify(gameState));
+                } catch (error) {
+                    console.error('Error saving game to localStorage:', error);
+                }
+            },
+        
+            loadGameFromLocalStorage() {
+                const savedStateJSON = localStorage.getItem('sudokuGameState');
+                if (!savedStateJSON) {
+                    return; 
+                }
+        
+                try {
+                    const loadedState = JSON.parse(savedStateJSON);
+                    
+                    if (!loadedState || typeof loadedState !== 'object') {
+                        console.error('Invalid saved state format.');
+                        localStorage.removeItem('sudokuGameState');
+                        return;
+                    }
+                    if (!loadedState.sudokuGrid || !loadedState.currentPuzzleDefinition || !loadedState.numberCounts) {
+                         console.error('Essential game data missing in saved state.');
+                         localStorage.removeItem('sudokuGameState');
+                         return;
+                    }
+        
+                    this.sudokuGrid = loadedState.sudokuGrid;
+                    this.currentPuzzleDefinition = loadedState.currentPuzzleDefinition;
+                    this.currentSolutionDefinition = loadedState.currentSolutionDefinition;
+                    this.currentDifficulty = loadedState.currentDifficulty;
+                    this.numberCounts = loadedState.numberCounts;
+                    this.gameWon = loadedState.gameWon || false;
+                    this.selectedCell = loadedState.selectedCell || { r: -1, c: -1 };
+        
+                } catch (error) {
+                    console.error('Error loading game from localStorage:', error);
+                    localStorage.removeItem('sudokuGameState');
+                }
+            },
             mounted() {
-                this.startNewGame('easy'); 
+                this.loadGameFromLocalStorage();
+                if (!this.currentPuzzleDefinition) {
+                    this.startNewGame(this.currentDifficulty || 'easy');
+                }
                 document.addEventListener('click', this.handleGlobalClick, true); 
                 document.addEventListener('keydown', this.handleGlobalKeyDown);
             },

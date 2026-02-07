@@ -112,7 +112,7 @@
             
             <div class="relative">
                 <button @click="toggleNewGameSubmenu" ref="newGameButton" title="New Game" class="tool-button bg-green-600 text-white hover:bg-green-500 active:bg-green-700 text-xs">
-                    <i class="fas fa-plus mr-1"></i> New
+                    <i class="fas fa-plus mr-0 sm:mr-1"></i> <span class="hidden sm:inline">New</span>
                     <i class="fas fa-caret-down ml-1 sm:ml-2 transition-transform duration-200" :class="{'rotate-180': isNewGameSubmenuOpen}"></i>
                 </button>
                 <div v-if="isNewGameSubmenuOpen" 
@@ -126,16 +126,16 @@
             </div>
 
             <button @click="checkPuzzle" title="Check Puzzle" class="tool-button bg-sky-600 text-white hover:bg-sky-500 active:bg-sky-700 text-xs">
-                <i class="fas fa-check mr-1"></i> Check
+                <i class="fas fa-check mr-0 sm:mr-1"></i> <span class="hidden sm:inline">Check</span>
             </button>
             <button @click="getHint" title="Get a Hint" class="tool-button bg-purple-600 text-white hover:bg-purple-500 active:bg-purple-700 text-xs">
-                <i class="fas fa-magic mr-1"></i> Hint
+                <i class="fas fa-magic mr-0 sm:mr-1"></i> <span class="hidden sm:inline">Hint</span>
             </button>
             <button @click="solvePuzzle" title="Solve Puzzle" class="tool-button bg-amber-500 text-black hover:bg-amber-400 active:bg-amber-600 text-xs">
-                <i class="fas fa-lightbulb mr-1"></i> Solve
+                <i class="fas fa-lightbulb mr-0 sm:mr-1"></i> <span class="hidden sm:inline">Solve</span>
             </button>
              <button @click="resetPuzzle" title="Reset Puzzle" class="tool-button bg-red-600 text-white hover:bg-red-500 active:bg-red-700 text-xs">
-                <i class="fas fa-undo mr-1"></i> Reset
+                <i class="fas fa-undo mr-0 sm:mr-1"></i> <span class="hidden sm:inline">Reset</span>
             </button>
             <div class="flex-grow"></div>
             <button @click="isAboutModalOpen = true" title="À propos" class="tool-button icon-only bg-slate-600 text-gray-300 hover:bg-slate-500 active:bg-slate-700">

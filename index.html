@@ -29,8 +29,8 @@
             transition: background-color 0.2s ease-in-out, transform 0.1s ease, color 0.2s ease-in-out;
             display: inline-flex; align-items: center; justify-content: center;
             height: 2.25rem; /* Base height for mobile */
-            padding-left: 0.5rem; /* Base padding for mobile */
-            padding-right: 0.5rem; /* Base padding for mobile */
+            padding-left: 0.75rem; /* Base padding for mobile */
+            padding-right: 0.75rem; /* Base padding for mobile */
             border-radius: 0.375rem; /* rounded-md */
             font-weight: 500; /* medium */
         }
@@ -43,7 +43,7 @@
         }
 
         .tool-button.icon-only { 
-            width: 2.25rem; /* Base width for mobile */
+            width: 2.5rem; /* Base width for mobile */
             padding-left: 0.5rem; /* Adjust if needed */
             padding-right: 0.5rem; /* Adjust if needed */
         }
@@ -112,7 +112,7 @@
             
             <div class="relative">
                 <button @click="toggleNewGameSubmenu" ref="newGameButton" title="New Game" class="tool-button bg-green-600 text-white hover:bg-green-500 active:bg-green-700 text-xs">
-                    <i class="fas fa-plus mr-1"></i> New
+                    <i class="fas fa-plus mr-0 sm:mr-1"></i> <span class="hidden sm:inline">New</span>
                     <i class="fas fa-caret-down ml-1 sm:ml-2 transition-transform duration-200" :class="{'rotate-180': isNewGameSubmenuOpen}"></i>
                 </button>
                 <div v-if="isNewGameSubmenuOpen" 
@@ -126,13 +126,16 @@
             </div>
 
             <button @click="checkPuzzle" title="Check Puzzle" class="tool-button bg-sky-600 text-white hover:bg-sky-500 active:bg-sky-700 text-xs">
-                <i class="fas fa-check mr-1"></i> Check
+                <i class="fas fa-check mr-0 sm:mr-1"></i> <span class="hidden sm:inline">Check</span>
+            </button>
+            <button @click="getHint" title="Get a Hint" class="tool-button bg-purple-600 text-white hover:bg-purple-500 active:bg-purple-700 text-xs">
+                <i class="fas fa-magic mr-0 sm:mr-1"></i> <span class="hidden sm:inline">Hint</span>
             </button>
             <button @click="solvePuzzle" title="Solve Puzzle" class="tool-button bg-amber-500 text-black hover:bg-amber-400 active:bg-amber-600 text-xs">
-                <i class="fas fa-lightbulb mr-1"></i> Solve
+                <i class="fas fa-lightbulb mr-0 sm:mr-1"></i> <span class="hidden sm:inline">Solve</span>
             </button>
              <button @click="resetPuzzle" title="Reset Puzzle" class="tool-button bg-red-600 text-white hover:bg-red-500 active:bg-red-700 text-xs">
-                <i class="fas fa-undo mr-1"></i> Reset
+                <i class="fas fa-undo mr-0 sm:mr-1"></i> <span class="hidden sm:inline">Reset</span>
             </button>
             <div class="flex-grow"></div>
             <button @click="isAboutModalOpen = true" title="À propos" class="tool-button icon-only bg-slate-600 text-gray-300 hover:bg-slate-500 active:bg-slate-700">
@@ -140,10 +143,10 @@
             </button>
         </div>
 
-        <div class="flex-grow m-1 sm:m-2 flex flex-col items-center justify-center p-1 sm:p-2 rounded-lg custom-scrollbar"
+        <div class="flex-grow m-1 sm:m-2 flex flex-col lg:flex-row items-center justify-center p-1 sm:p-2 rounded-lg custom-scrollbar"
              :style="{ backgroundColor: boardBgColor }">
             
-            <div id="sudoku-grid" class="grid grid-cols-9 gap-px bg-slate-600 border border-slate-600 sm:border-2 sm:border-slate-500 rounded shadow-md sm:rounded-md sm:shadow-lg select-none w-full max-w-[calc(100vw-40px)] sm:max-w-xs md:max-w-sm lg:max-w-md xl:max-w-lg">
+            <div id="sudoku-grid" class="grid grid-cols-9 gap-px bg-slate-600 border border-slate-600 sm:border-2 sm:border-slate-500 rounded shadow-md sm:rounded-md sm:shadow-lg select-none w-full max-w-[calc(100vw-40px)] sm:max-w-md md:max-w-lg lg:max-w-xl">
                 <template v-for="(row, r_idx) in sudokuGrid" :key="r_idx">
                     <div v-for="(cell, c_idx) in row" :key="`${r_idx}-${c_idx}`"
                          class="sudoku-cell aspect-square flex items-center justify-center cursor-pointer border border-slate-500 sm:border-slate-600"
@@ -184,37 +187,39 @@
                 </template>
             </div>
 
-            <div id="number-pad" class="mt-3 sm:mt-4 grid grid-cols-5 gap-1 sm:gap-1.5 md:gap-2">
-                <button v-for="num in [1,2,3,4,5,6,7,8,9]" :key="num"
-                        @click="inputNumber(num)"
-                        :class="['tool-button w-10 h-10 text-lg sm:w-12 sm:h-12 sm:text-xl md:w-14 md:h-14 md:text-2xl lg:w-16 lg:h-16 lg:text-3xl rounded-md', {
-                            'bg-slate-500 text-slate-300 cursor-not-allowed opacity-75': numberCounts[num] === 9 && currentInputMode === 'normal',
-                            'bg-sky-600 hover:bg-sky-500 text-white': !(numberCounts[num] === 9 && currentInputMode === 'normal')
-                        }]"
-                        :disabled="numberCounts[num] === 9 && currentInputMode === 'normal'">
-                    {{num}}
-                </button>
-                <button @click="inputNumber(0)" title="Clear cell (Backspace/Delete/0)"
-                        class="tool-button w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 bg-slate-600 hover:bg-slate-500 text-white rounded-md">
-                    <i class="fas fa-backspace text-lg sm:text-xl md:text-2xl lg:text-3xl"></i>
-                </button>
-            </div>
-             <div class="mt-3 sm:mt-4 flex justify-center space-x-2">
-                <button @click="currentInputMode = 'normal'"
-                        aria-label="Normal input mode"
-                        :class="['tool-button p-2 sm:p-2.5 text-sm sm:text-base rounded-md', currentInputMode === 'normal' ? 'bg-blue-600 text-white ring-2 ring-blue-400' : 'bg-slate-600 hover:bg-slate-500 text-gray-200']">
-                    <i class="fas fa-pencil-alt" :class="currentInputMode === 'normal' ? 'text-white' : 'text-sky-400'"></i>
-                </button>
-                <button @click="currentInputMode = 'red'"
-                        aria-label="Red candidate input mode"
-                        :class="['tool-button p-2 sm:p-2.5 text-sm sm:text-base rounded-md', currentInputMode === 'red' ? 'bg-red-600 text-white ring-2 ring-red-400' : 'bg-slate-600 hover:bg-slate-500 text-gray-200']">
-                    <i class="fas fa-pencil-alt" :class="currentInputMode === 'red' ? 'text-white' : 'text-red-400'"></i>
-                </button>
-                <button @click="currentInputMode = 'green'"
-                        aria-label="Green candidate input mode"
-                        :class="['tool-button p-2 sm:p-2.5 text-sm sm:text-base rounded-md', currentInputMode === 'green' ? 'bg-green-600 text-white ring-2 ring-green-400' : 'bg-slate-600 hover:bg-slate-500 text-gray-200']">
-                    <i class="fas fa-pencil-alt" :class="currentInputMode === 'green' ? 'text-white' : 'text-green-400'"></i>
-                </button>
+            <div class="flex flex-col items-center mt-4 lg:mt-0 lg:ml-8">
+                <div id="number-pad" class="grid grid-cols-5 gap-1 sm:gap-1.5 md:gap-2">
+                    <button v-for="num in [1,2,3,4,5,6,7,8,9]" :key="num"
+                            @click="inputNumber(num)"
+                            :class="['tool-button w-10 h-10 text-lg sm:w-12 sm:h-12 sm:text-xl md:w-14 md:h-14 md:text-2xl lg:w-16 lg:h-16 lg:text-3xl rounded-md', {
+                                'bg-slate-500 text-slate-300 cursor-not-allowed opacity-75': numberCounts[num] === 9 && currentInputMode === 'normal',
+                                'bg-sky-600 hover:bg-sky-500 text-white': !(numberCounts[num] === 9 && currentInputMode === 'normal')
+                            }]"
+                            :disabled="numberCounts[num] === 9 && currentInputMode === 'normal'">
+                        {{num}}
+                    </button>
+                    <button @click="inputNumber(0)" title="Clear cell (Backspace/Delete/0)"
+                            class="tool-button w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 bg-slate-600 hover:bg-slate-500 text-white rounded-md">
+                        <i class="fas fa-backspace text-lg sm:text-xl md:text-2xl lg:text-3xl"></i>
+                    </button>
+                </div>
+                 <div class="mt-3 sm:mt-4 flex justify-center space-x-2">
+                    <button @click="currentInputMode = 'normal'"
+                            aria-label="Normal input mode"
+                            :class="['tool-button p-2 sm:p-2.5 text-sm sm:text-base rounded-md', currentInputMode === 'normal' ? 'bg-blue-600 text-white ring-2 ring-blue-400' : 'bg-slate-600 hover:bg-slate-500 text-gray-200']">
+                        <i class="fas fa-pencil-alt" :class="currentInputMode === 'normal' ? 'text-white' : 'text-sky-400'"></i>
+                    </button>
+                    <button @click="currentInputMode = 'red'"
+                            aria-label="Red candidate input mode"
+                        :class="['tool-button p-2 sm:p-2.5 text-sm sm:text-base rounded-md', currentInputMode === 'red' ? 'bg-red-600 text-white ring-2 ring-red-400' : 'bg-slate-700 hover:bg-slate-600 text-gray-200 border border-red-500/30']">
+                    <i class="fas fa-pencil-alt" :class="currentInputMode === 'red' ? 'text-white' : 'text-red-500'"></i>
+                    </button>
+                    <button @click="currentInputMode = 'green'"
+                            aria-label="Green candidate input mode"
+                            :class="['tool-button p-2 sm:p-2.5 text-sm sm:text-base rounded-md', currentInputMode === 'green' ? 'bg-green-600 text-white ring-2 ring-green-400' : 'bg-slate-600 hover:bg-slate-500 text-gray-200']">
+                        <i class="fas fa-pencil-alt" :class="currentInputMode === 'green' ? 'text-white' : 'text-green-400'"></i>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -613,6 +618,69 @@
                                  this.sudokuGrid[i][j].isError = false;
                             }
                         }
+                    }
+                },
+                getHint() {
+                    if (this.gameWon) return;
+
+                    let r = this.selectedCell.r;
+                    let c = this.selectedCell.c;
+                    let cell = null;
+
+                    // First try selected cell if it's not correct
+                    if (r !== -1 && c !== -1) {
+                        let current = this.sudokuGrid[r][c];
+                        if (!current.fixed) {
+                             let correctVal = this.currentSolutionDefinition[r][c];
+                             if (current.currentValue !== correctVal) {
+                                 cell = current;
+                             }
+                        }
+                    }
+
+                    // If selected cell didn't need a hint (was correct or fixed), find another one
+                    if (!cell) {
+                        let candidates = [];
+                        for(let i=0; i<9; i++) {
+                            for(let j=0; j<9; j++) {
+                                let gCell = this.sudokuGrid[i][j];
+                                if (!gCell.fixed) {
+                                    let correctVal = this.currentSolutionDefinition[i][j];
+                                    if (gCell.currentValue !== correctVal) {
+                                        candidates.push({r:i, c:j});
+                                    }
+                                }
+                            }
+                        }
+                        if (candidates.length === 0) {
+                             this.showMessage("Info", "The puzzle appears to be solved!", "success");
+                             return;
+                        }
+                        // Pick random
+                        let randIndex = Math.floor(Math.random() * candidates.length);
+                        let coords = candidates[randIndex];
+                        cell = this.sudokuGrid[coords.r][coords.c];
+
+                        // Select this cell to show the user where the hint happened
+                        this.selectCell(coords.r, coords.c);
+                    }
+
+                    // Apply hint
+                    if (cell) {
+                        // Decrement count of old value if valid
+                        if (cell.currentValue >= 1 && cell.currentValue <= 9) {
+                             if (this.numberCounts[cell.currentValue] > 0) this.numberCounts[cell.currentValue]--;
+                        }
+
+                        let newVal = this.currentSolutionDefinition[this.selectedCell.r][this.selectedCell.c];
+                        cell.currentValue = newVal;
+                        cell.fixed = true;
+                        cell.isError = false;
+                        cell.candidates.red = [];
+                        cell.candidates.green = [];
+
+                        this.numberCounts[newVal]++;
+                        this.saveGameToLocalStorage();
                     }
                 },
                 checkPuzzle() {
